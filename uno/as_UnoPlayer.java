@@ -1,9 +1,6 @@
 package uno;
-
-
- 
-
 import java.util.List;
+import java.util.ArrayList;
 
 public class as_UnoPlayer implements UnoPlayer {
 
@@ -39,10 +36,34 @@ public class as_UnoPlayer implements UnoPlayer {
      * automatically for you.)
      */
     public int play(List<Card> hand, Card upCard, Color calledColor,
-        GameState state) {
-
-        // THIS IS WHERE YOUR AMAZING CODE GOES
-        return -1;
+        GameState state) 
+    {
+        // Get color if wild was played
+        Color upColor = upCard.getColor();
+        if (upColor == Color.NONE)
+        {
+            upColor = calledColor;
+        }
+        
+        // Get valid cards to play
+        ArrayList<Card> validCards = new ArrayList<Card>();
+        for (Card card : hand)
+        {
+            // Card is the same color as called
+            if ((card.getColor() == upColor) ||
+                // Card is not a number and the same rank as upCard
+                (card.getRank() != Rank.NUMBER && card.getRank() == upCard.getRank()) ||
+                // Card is a number and the same number as upCard
+                (card.getRank() == Rank.NUMBER && card.getNumber() == upCard.getNumber()) ||
+                // Card is a wild
+                (card.getColor() == Color.NONE))
+                validCards.add(card);
+        }
+        
+        if (validCards.size() == 0)
+            return -1;
+        else
+            return hand.indexOf(validCards.get(0));
     }
 
 
@@ -54,10 +75,9 @@ public class as_UnoPlayer implements UnoPlayer {
      * You must return a valid Color value from this method. You must not
      * return the value Color.NONE under any circumstances.
      */
-    public Color callColor(List<Card> hand) {
-
-        // THIS IS WHERE YOUR AMAZING CODE GOES
-        return null;
+    public Color callColor(List<Card> hand)
+    {
+        return Color.GREEN;
     }
  
 }
