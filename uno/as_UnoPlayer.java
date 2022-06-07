@@ -5,7 +5,7 @@ package uno;
 
 import java.util.List;
 
-public class sk_UnoPlayer implements UnoPlayer {
+public class as_UnoPlayer implements UnoPlayer {
 
     /**
      * play - This method is called when it's your turn and you need to
