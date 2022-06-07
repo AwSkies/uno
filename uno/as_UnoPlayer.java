@@ -45,10 +45,13 @@ public class as_UnoPlayer implements UnoPlayer {
             upColor = calledColor;
         }
         
-        // Get valid cards to play
-        ArrayList<Card> validCards = new ArrayList<Card>();
-        for (Card card : hand)
+        // Loop through hand and decide which card to play
+        // Index of current hand to play
+        // If no valid cards are found, index will remain unchanged
+        int index = -1;
+        for (int i = 0; i < hand.size(); i++)
         {
+            Card card = hand.get(i);
             // Card is the same color as called
             if ((card.getColor() == upColor) ||
                 // Card is not a number and the same rank as upCard
@@ -57,14 +60,12 @@ public class as_UnoPlayer implements UnoPlayer {
                 (card.getRank() == Rank.NUMBER && card.getNumber() == upCard.getNumber()) ||
                 // Card is a wild
                 (card.getColor() == Color.NONE))
-                validCards.add(card);
+            {
+                index = i;
+            }
         }
         
-        // If no valid cards are found return -1
-        if (validCards.size() == 0)
-            return -1;
-        
-        return hand.indexOf(validCards.get(0));
+        return index;
     }
 
 
