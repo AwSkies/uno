@@ -60,10 +60,11 @@ public class as_UnoPlayer implements UnoPlayer {
                 validCards.add(card);
         }
         
+        // If no valid cards are found return -1
         if (validCards.size() == 0)
             return -1;
-        else
-            return hand.indexOf(validCards.get(0));
+        
+        return hand.indexOf(validCards.get(0));
     }
 
 

@@ -1,4 +1,4 @@
-SK_test,sk
+ASBot,as
 Random1,random
 Random2,random
 Random3,random
