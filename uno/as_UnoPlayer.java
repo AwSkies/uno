@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class as_UnoPlayer implements UnoPlayer {
+    GameState gameState;
 
     /**
      * play - This method is called when it's your turn and you need to
@@ -65,9 +66,11 @@ public class as_UnoPlayer implements UnoPlayer {
             }
         }
         
+        // Store GameState for use in calledColor
+        gameState = state;
+        
         return index;
     }
-
 
     /**
      * callColor - This method will be called when you have just played a
@@ -79,7 +82,42 @@ public class as_UnoPlayer implements UnoPlayer {
      */
     public Color callColor(List<Card> hand)
     {
-        return Color.GREEN;
+        // Number of points each color gets
+        // Points are added or subtracted to each color based on fitness and then the one 
+        // with the highest amount of points is chosen
+        int[] colorPoints = new int[4];
+        
+        // Amount of each color in hand
+        int[] colorCount = countColors(hand);
+        // Find highest amount of cards
+        int mostCardColor = 0;
+        for (int i = 1; i < colorCount.length; i++)
+        {
+            // If the amount of cards of this color are greater than the previous highest
+            if (colorCount[i] > colorCount[mostCardColor])
+                mostCardColor = i;
+        }
+        // Add one point to the color with the most cards
+        colorPoints[mostCardColor]++;
+        
+        
+        
+        return Color.NONE;
     }
- 
+    
+    /** 
+     * Returns a 5 element array of how many cards of each color are in the hand.
+     * Excludes wilds.
+     */
+    private int[] countColors(List<Card> hand)
+    {
+        // Array of number of each color to return
+        int[] colors = new int[4];
+        for (Card card : hand)
+        {
+            if (card.getColor() != Color.NONE)
+                colors[card.getColor().ordinal()]++;
+        }
+        return colors;
+    }
 }
