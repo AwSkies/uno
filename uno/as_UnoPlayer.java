@@ -71,9 +71,12 @@ public class as_UnoPlayer implements UnoPlayer {
                 // Card is a wild
                 (card.getColor() == Color.NONE))
             {
-
                 // Count points towards this card being good
                 int points = 0;
+
+                // Add one point to number cards to prioritize saving special cards
+                if (card.getRank() == Rank.NUMBER)
+                    points++;
 
                 // If color is not the same color as the current card and not a wild and the hand has more cards of this color than the current color
                 if (card.getColor() != upColor && card.getColor() != Color.NONE && colors[card.getColor().ordinal()] > colors[upColor.ordinal()])
@@ -82,11 +85,14 @@ public class as_UnoPlayer implements UnoPlayer {
                     else
                         points++;
 
-                // If the player next to us has less than three cards and this card is a reverse, skip, or draw two
+                // If the player next to us has three or fewer cards and this card is a reverse, skip, or draw two
                 int[] cardsInHands = state.getNumCardsInHandsOfUpcomingPlayers();
-                int minIndex = min(cardsInHands);
-                if (minIndex == 0 && cardsInHands[minIndex] < 3 && (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE || card.getRank() == Rank.DRAW_TWO))
+                if (cardsInHands[0] < 4 && (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE || card.getRank() == Rank.DRAW_TWO))
                     points += 5;
+                
+                // If this card is a wild +4 and the next player has a small number of cards, choose the wild+4
+                if (cardsInHands[0] < 4 && card.getRank() == Rank.WILD_D4)
+                    points++;
                 
                 // If this point total is the new max, say this is the best card
                 if (points > maxPoints)
