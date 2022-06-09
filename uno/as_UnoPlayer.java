@@ -1,6 +1,5 @@
 package uno;
 import java.util.List;
-import java.util.ArrayList;
 
 public class as_UnoPlayer implements UnoPlayer {
     GameState gameState;
@@ -45,14 +44,24 @@ public class as_UnoPlayer implements UnoPlayer {
         {
             upColor = calledColor;
         }
+
+        // Get number of cards of each color
+        int[] colors = countColors(hand);
+        // The color with the highest amount of cards in the hand
+        Color maxColor = Color.values()[max(colors)];
+
         
         // Loop through hand and decide which card to play
         // Index of current hand to play
         // If no valid cards are found, index will remain unchanged
         int index = -1;
+        // Max points
+        // Starting at -1 ensures that there will definitely be a card selected
+        int maxPoints = -1;
         for (int i = 0; i < hand.size(); i++)
         {
             Card card = hand.get(i);
+            // IF
             // Card is the same color as called
             if ((card.getColor() == upColor) ||
                 // Card is not a number and the same rank as upCard
@@ -62,7 +71,29 @@ public class as_UnoPlayer implements UnoPlayer {
                 // Card is a wild
                 (card.getColor() == Color.NONE))
             {
-                index = i;
+
+                // Count points towards this card being good
+                int points = 0;
+
+                // If color is not the same color as the current card and not a wild and the hand has more cards of this color than the current color
+                if (card.getColor() != upColor && card.getColor() != Color.NONE && colors[card.getColor().ordinal()] > colors[upColor.ordinal()])
+                    if (card.getColor() == maxColor)
+                        points += 2;
+                    else
+                        points++;
+
+                // If the player next to us has less than three cards and this card is a reverse, skip, or draw two
+                int[] cardsInHands = state.getNumCardsInHandsOfUpcomingPlayers();
+                int minIndex = min(cardsInHands);
+                if (minIndex == 0 && cardsInHands[minIndex] < 3 && (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE || card.getRank() == Rank.DRAW_TWO))
+                    points += 5;
+                
+                // If this point total is the new max, say this is the best card
+                if (points > maxPoints)
+                {
+                    maxPoints = points;
+                    index = i;
+                }
             }
         }
         
@@ -90,23 +121,26 @@ public class as_UnoPlayer implements UnoPlayer {
         // Amount of each color in hand
         int[] colorCount = countColors(hand);
         // Find highest amount of cards
-        int mostCardColor = 0;
-        for (int i = 1; i < colorCount.length; i++)
-        {
-            // If the amount of cards of this color are greater than the previous highest
-            if (colorCount[i] > colorCount[mostCardColor])
-                mostCardColor = i;
-        }
+        int mostCardColor = max(colorCount);
         // Add one point to the color with the most cards
         colorPoints[mostCardColor]++;
         
-        
-        
-        return Color.NONE;
+        // Most recent colors
+        // Subtract one point from a color if it was called by a player
+        for (Color color : gameState.getMostRecentColorCalledByUpcomingPlayers())
+        {
+            if (color != null)
+                colorPoints[color.ordinal()]--;
+        }
+
+        // Index of the color with the highest number of points
+        int highestColor = max(colorPoints);
+        // Return color with most points
+        return Color.values()[highestColor];
     }
     
     /** 
-     * Returns a 5 element array of how many cards of each color are in the hand.
+     * Returns a 4 element array of how many cards of each color are in the hand.
      * Excludes wilds.
      */
     private int[] countColors(List<Card> hand)
@@ -119,5 +153,33 @@ public class as_UnoPlayer implements UnoPlayer {
                 colors[card.getColor().ordinal()]++;
         }
         return colors;
+    }
+
+    /**
+     * Returns the index of the maximum element of an array
+     */
+    private int max(int[] arr)
+    {
+        int index = 0;
+        for (int i = 1; i < arr.length; i++)
+        {
+            if (arr[i] > arr[index])
+                index = i;
+        }
+        return index;
+    }
+
+    /**
+     * Returns the index of the maximum element of an array
+     */
+    private int min(int[] arr)
+    {
+        int index = 0;
+        for (int i = 1; i < arr.length; i++)
+        {
+            if (arr[i] < arr[index])
+                index = i;
+        }
+        return index;
     }
 }
