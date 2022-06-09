@@ -50,49 +50,63 @@ public class as_UnoPlayer implements UnoPlayer {
         // The color with the highest amount of cards in the hand
         Color maxColor = Color.values()[max(colors)];
 
-        
-        // Loop through hand and decide which card to play
+        // To determine which card to play, the code loops through each valid card in the hand and awards 
+        // that card a certain number of points if it meets a certain criteria. Then, the card with the 
+        // highest number of points is chosen and played.
+
         // Index of current hand to play
         // If no valid cards are found, index will remain unchanged
         int index = -1;
         // Max points
         // Starting at -1 ensures that there will definitely be a card selected
-        int maxPoints = -1;
+        double maxPoints = -1;
+        // Loop through each card in the hand
         for (int i = 0; i < hand.size(); i++)
         {
+            // Get card at current index
             Card card = hand.get(i);
-            // IF
-            // Card is the same color as called
+            // If statement determining if the current card is valid
+            // IF card is the same color as called
             if ((card.getColor() == upColor) ||
-                // Card is not a number and the same rank as upCard
+                // or card is not a number and the same rank as upCard
                 (card.getRank() != Rank.NUMBER && card.getRank() == upCard.getRank()) ||
-                // Card is a number and the same number as upCard
+                // or card is a number and the same number as upCard
                 (card.getRank() == Rank.NUMBER && card.getNumber() == upCard.getNumber()) ||
-                // Card is a wild
+                // or card is a wild
                 (card.getColor() == Color.NONE))
             {
                 // Count points towards this card being good
-                int points = 0;
+                double points = 0;
 
-                // Add one point to number cards to prioritize saving special cards
+                // Add points to number cards to prioritize saving offensive cards
                 if (card.getRank() == Rank.NUMBER)
-                    points++;
+                    // Given one point to start and then given more points for higher numbers to prioritize getting rid of high cards
+                    points += 1 + (card.getNumber() / 9.0);
 
                 // If color is not the same color as the current card and not a wild and the hand has more cards of this color than the current color
                 if (card.getColor() != upColor && card.getColor() != Color.NONE && colors[card.getColor().ordinal()] > colors[upColor.ordinal()])
+                    // If this card would be changing the color to the color we have most of, give 2 points
                     if (card.getColor() == maxColor)
                         points += 2;
+                    // else, the color is just one we have more of, give 1 point
                     else
                         points++;
 
-                // If the player next to us has three or fewer cards and this card is a reverse, skip, or draw two
+                // Get the number of cards in the other hands
                 int[] cardsInHands = state.getNumCardsInHandsOfUpcomingPlayers();
-                if (cardsInHands[0] < 4 && (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE || card.getRank() == Rank.DRAW_TWO))
-                    points += 5;
-                
-                // If this card is a wild +4 and the next player has a small number of cards, choose the wild+4
-                if (cardsInHands[0] < 4 && card.getRank() == Rank.WILD_D4)
-                    points++;
+                // If the player next to us has three or fewer cards
+                if (cardsInHands[0] < 4)
+                {
+                    // Skips or reverses get five points to prioritize hurting the next player
+                    if (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE)
+                        points += 5;
+                    // +2s are better than skips or reverses so get more points
+                    else if (card.getRank() == Rank.DRAW_TWO)
+                        points += 6;
+                    // +4s are better than skips, reverses, and +2s so get more points
+                    else if (card.getRank() == Rank.WILD_D4))
+                        points += 10;
+                }
                 
                 // If this point total is the new max, say this is the best card
                 if (points > maxPoints)
