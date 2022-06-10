@@ -286,4 +286,44 @@ public class as_UnoPlayer implements UnoPlayer {
         }
         return index;
     }
+
+    /**
+     * Returns the all of the values to learn in an array
+     */
+    public double[] getValues()
+    {
+        return new double [] {
+            baseNumberPoints,
+            numberValueCoefficient,
+            switchColorToMostHeldPoints,
+            switchColorToMoreHeldPoints,
+            significantLeadRatio,
+            playColorDislikedByHighestPlayerPoints,
+            reversePoints,
+            skipPoints,
+            drawTwoPoints,
+            wildDrawFourPoints,
+            heldColorCoefficient,
+            calledColorPoints
+        }
+    }
+
+    /**
+     * Sets all of the values to learn from an array
+     */
+    public void setValues(double[] values)
+    {
+        baseNumberPoints = values[0];
+        numberValueCoefficient = values[1];
+        switchColorToMostHeldPoints = values[2];
+        switchColorToMoreHeldPoints = values[3];
+        significantLeadRatio = values[4];
+        playColorDislikedByHighestPlayerPoints = values[5];
+        reversePoints = values[6];
+        skipPoints = values[7];
+        drawTwoPoints = values[8];
+        wildDrawFourPoints = values[9];
+        heldColorCoefficient = values[10];
+        calledColorPoints = values[11];
+    }
 }
