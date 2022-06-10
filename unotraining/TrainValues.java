@@ -1,8 +1,5 @@
 package unotraining;
 
-
- 
-
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.BufferedReader;
@@ -40,7 +37,6 @@ public class TrainValues {
      * "uno.fsmith_UnoPlayer") against Jane (whose classname was
      * "uno.jdoe_Unoplayer") against, Billy,... etc.
      */
-    public static final String PLAYER_FILENAME = "players.txt";
 
     /** 
      * Run an Uno simulation of some number of games pitting some set of
@@ -62,7 +58,7 @@ public class TrainValues {
         int startingGen = Integer.valueOf(args[0]);
 
         // Initialize players from starting param list
-        ArrayList<as_UnoPlayer> players = new ArrayList<as_UnoPlayer>();
+        as_UnoPlayer[] players = new as_UnoPlayer[4];
         // Read file and parse values
 
         // For each generation
@@ -72,7 +68,7 @@ public class TrainValues {
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    ArrayList<as_UnoPlayer> newPlayers = new ArrayList<as_UnoPlayer>();
+                    as_UnoPlayer[] newPlayers = new as_UnoPlayer[4];
                     // Initialize players for this gen based on mutations and stuff from the previous gen
                     players = newPlayers;
                 }
@@ -94,17 +90,16 @@ public class TrainValues {
         }
     }
 
-    private static void loadPlayerData(int generation) throws Exception {
-        BufferedReader br = new BufferedReader(new FileReader(
-            PLAYER_FILENAME));
-        String playerLine = br.readLine();
-        while (playerLine != null) {
-            Scanner line = new Scanner(playerLine).useDelimiter(",");
-            playerNames.add(line.next());
-            playerClasses.add("uno." + line.next() + "_UnoPlayer");
-            playerLine = br.readLine();
-        }
+    private static double[] readValues(int generation) throws Exception {
+        BufferedReader br = new BufferedReader(new FileReader("gen" + generation + ".txt"));
+        Scanner line = new Scanner(br.readLine()).useDelimiter(",");
 
+        double[] values  = new double[18];
+        for (int i = 0; i < values.length; i++)
+        {
+            values[i] = Double.parseDouble(line.next());
+        }
+        return values;
     }
 
 }

@@ -74,7 +74,7 @@ public class as_UnoPlayer implements UnoPlayer {
         // Get number of cards of each color
         int[] colors = countColors(hand);
         // The color with the highest amount of cards in the hand
-        Color maxColor = Color.values()[max(colors)];
+        Color maxColor = Color.values()[intMax(colors)];
 
         // To determine which card to play, the code loops through each valid card in the hand and awards 
         // that card a certain number of points if it meets a certain criteria. Then, the card with the 
@@ -129,7 +129,7 @@ public class as_UnoPlayer implements UnoPlayer {
                 // Get the number of cards in the other hands
                 int[] cardsInHands = state.getNumCardsInHandsOfUpcomingPlayers();
                 // Get the minimum number of cards (detect if someone is close to winning) and the corresponding player position
-                int minIndex = min(cardsInHands);
+                int minIndex = intMin(cardsInHands);
                 int minCards = cardsInHands[minIndex];
 
                 // If a player is close to winning or they have a significant lead
@@ -187,7 +187,7 @@ public class as_UnoPlayer implements UnoPlayer {
         // Loop through each color
         for (int i = 0; i < colorCount.length; i++)
             // Give each color a number of points proportional to the portional of the hand it takes up
-            colorPoints[i] = heldColorCoefficient * (colorCount / (double) hand.size());
+            colorPoints[i] = heldColorCoefficient * (colorCount[i] / (double) hand.size());
         
         // Most recent colors
         // Subtract one point from a color if it was called by a player
@@ -198,7 +198,7 @@ public class as_UnoPlayer implements UnoPlayer {
         }
             
         // Index of the color with the highest number of points
-        int highestColor = max(colorPoints);
+        int highestColor = doubleMax(colorPoints);
         // Return color with most points
         return Color.values()[highestColor];
     }
@@ -234,7 +234,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Returns the index of the maximum element of a double array
      */
-    private int max(double[] arr)
+    private int doubleMax(double[] arr)
     {
         int index = 0;
         for (int i = 1; i < arr.length; i++)
@@ -248,7 +248,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Returns the index of the maximum element of an int array
      */
-    private int max(int[] arr)
+    private int intMax(int[] arr)
     {
         int index = 0;
         for (int i = 1; i < arr.length; i++)
@@ -262,7 +262,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Returns the index of the minimum element of an int array
      */
-    private int min(int[] arr)
+    private int intMin(int[] arr)
     {
         int index = 0;
         for (int i = 1; i < arr.length; i++)
@@ -276,7 +276,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Returns the index of the minimum element of an int array
      */
-    private int min(double[] arr)
+    private int doubleMin(double[] arr)
     {
         int index = 0;
         for (int i = 1; i < arr.length; i++)

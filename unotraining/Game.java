@@ -217,13 +217,13 @@ public class Game {
     }
 
     void print(String s) {
-        if (UnoSimulation.PRINT_VERBOSE) {
+        if (TrainValues.PRINT_VERBOSE) {
             System.out.print(s);
         }
     }
 
     void println(String s) {
-        if (UnoSimulation.PRINT_VERBOSE) {
+        if (TrainValues.PRINT_VERBOSE) {
             System.out.println(s);
         }
     }

@@ -194,7 +194,7 @@ public class as_UnoPlayer implements UnoPlayer {
         // Loop through each color
         for (int i = 0; i < colorCount.length; i++)
             // Give each color a number of points proportional to the portional of the hand it takes up
-            colorPoints[i] = heldColorCoefficient * (colorCount / (double) hand.size());
+            colorPoints[i] = heldColorCoefficient * (colorCount[i] / (double) hand.size());
         
         // Most recent colors
         // Subtract one point from a color if it was called by a player
@@ -312,7 +312,7 @@ public class as_UnoPlayer implements UnoPlayer {
             wildDrawFourPoints,
             heldColorCoefficient,
             calledColorPoints
-        }
+        };
     }
 
     /**
