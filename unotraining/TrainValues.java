@@ -17,7 +17,7 @@ public class TrainValues {
      * Controls how many messages fly by the screen while narrating an Uno
      * match in text.
      */
-    static boolean PRINT_VERBOSE = true;
+    static boolean PRINT_VERBOSE = false;
 
     /**
      * <p>The name of a file (relative to working directory) containing
@@ -47,33 +47,73 @@ public class TrainValues {
      * magnitude of output.
      */
     public static void main(String args[]) {
-        PRINT_VERBOSE = false;
-        int numGames = 50000;
-        if (args.length != 1) {
-            System.out.println("Usage: TrainValues startingGeneration.");
+        if (args.length == 1 && args[0].equals("-h")) {
+            System.out.println("Usage: TrainValues [startingGeneration] [numGenerations] [numPlayers] [gamesPerGen] [permutationsPerGen]");
+            System.exit(1);
+        }
+        
+        // Default values
+        int startingGen = 0;
+        int numGenerations = 10000;
+        int numPlayers = 4;
+        int gamesPerGen = 50000;
+        int permutationsPerGen = 4;
+        
+        // Set parameter based on arguments
+        if (args.length > 0)
+            startingGen = Integer.parseInt(args[0]);
+
+        if (args.length > 1)
+            numGenerations = Integer.parseInt(args[1]);
+
+        if (args.length > 2)
+            numPlayers = Integer.parseInt(args[2]);
+
+        if (args.length > 3)
+            gamesPerGen = Integer.parseInt(args[3]);
+
+        if (args.length > 4)
+            permutationsPerGen = Integer.parseInt(args[4]);
+
+        // Initialize players from starting param list
+        as_UnoPlayer[] players = new as_UnoPlayer[numPlayers];
+        double[] bestValues = new double[0];
+        // Read the values from the starting generation with error handling
+        try
+        {
+            bestValues = readValues(startingGen);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("There probably isn't the correct file for the generation you chose");
             System.exit(1);
         }
 
-        // Starting generation
-        int startingGen = Integer.valueOf(args[0]);
-
-        // Initialize players from starting param list
-        as_UnoPlayer[] players = new as_UnoPlayer[4];
-        // Read file and parse values
-
         // For each generation
-        for (int gen = startingGen; gen < 10000; gen++)
+        for (int gen = startingGen; gen < numGenerations; gen++)
         {
-            try
+            System.out.println("Beginning generation " + gen + "...");
+            as_UnoPlayer[] newPlayers = new as_UnoPlayer[players.length];
+            for (int i = 0; i < newPlayers.length; i++)
             {
-                for (int i = 0; i < 4; i++)
+                // Initialize players for this gen based on mutations and stuff from the previous gen
+                for (int j = 0; j < newPlayers.length; j++)
                 {
-                    as_UnoPlayer[] newPlayers = new as_UnoPlayer[4];
-                    // Initialize players for this gen based on mutations and stuff from the previous gen
-                    players = newPlayers;
+                    newPlayers[j] = new as_UnoPlayer("Player" + j, startingGen, mutateValues(bestValues));
                 }
+            }
+            players = newPlayers;
+
+            System.out.println("Running games...");
+
+            int[] points = new int[players.length];
+            for (int p = 0; p < permutationsPerGen; p++)
+            {
+                int[] indexMap;
+                
                 Scoreboard s = new Scoreboard(players);
-                for (int i=0; i<numGames; i++)
+                for (int i=0; i < gamesPerGen; i++)
                 {
                     Game g = new Game(s);
                     if(!g.play()) 
@@ -82,22 +122,50 @@ public class TrainValues {
                         return;
                     }
                 }
-                System.out.println(s);
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            // Calculate winner
+
+
+            System.out.println("Finished generation " + gen + ".\nBest performer: ");
         }
     }
 
+    /**
+     * Reads values from a file with the name "gen[generation].txt"
+     * @param generation The generation to take the information from
+     */
     private static double[] readValues(int generation) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader("gen" + generation + ".txt"));
         Scanner line = new Scanner(br.readLine()).useDelimiter(",");
 
-        double[] values  = new double[18];
+        double[] values  = new double[as_UnoPlayer.NUM_VALUES];
         for (int i = 0; i < values.length; i++)
         {
             values[i] = Double.parseDouble(line.next());
+        }
+        // Close streams
+        br.close();
+
+        return values;
+    }
+
+    /**
+     * Mutates the values passed randomly. Sometimes will swap a value with the
+     * @param valuesToMutate The values to mutate
+     */
+    private static double[] mutateValues(double[] valuesToMutate)
+    {
+        double[] values = new double[valuesToMutate.length];
+        for (int i = 0; i < valuesToMutate.length; i++)
+        {
+            int sign = 1;
+            if ((int) (Math.random() * 2) == 1)
+                sign = -1;
+            // Mutates the values
+            // Adds or subtracts two Math.random() calls to the value
+            // The two Math.random() calls are so small changes occur most often but large changes can exist
+            values[i] = valuesToMutate[i] + (sign * Math.random() * Math.random());
         }
         return values;
     }
