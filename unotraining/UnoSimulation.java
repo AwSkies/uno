@@ -1,4 +1,4 @@
-package uno;
+package unotraining;
 
 
  
@@ -14,7 +14,7 @@ import java.io.FileReader;
  * provided to the screen about game flow and final scores.</p>
  * @since 1.0
  */
-public class CoefficientTraining {
+public class UnoSimulation {
 
     /** 
      * Controls how many messages fly by the screen while narrating an Uno
@@ -60,7 +60,7 @@ public class CoefficientTraining {
     public static void main(String args[]) {
         int numGames = 0;
         if (args.length != 1  &&  args.length != 2) {
-            System.out.println("Usage: CoefficientTraining numberOfGames [verbose|quiet].");
+            System.out.println("Usage: UnoSimulation numberOfGames [verbose|quiet].");
             System.exit(1);
         }
         numGames = Integer.valueOf(args[0]);
