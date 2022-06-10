@@ -2,13 +2,33 @@ package uno;
 import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
+    // The game state stored for use during callColor
     GameState gameState;
     
+    // Point values and coefficients given to cards in play method
     // The base number of points a number card gets
-    double baseNumberPoints;
+    private double baseNumberPoints = 1;
     // The coefficient of the number's value over 9
-    double numberValueCoefficient;
-    // 
+    private double numberValueCoefficient = 1;
+    // The amount of points given to a number card that can switch the color to the color we have the most of
+    private double switchColorToMostHeldPoints = 2;
+    // The amount of points given to a number card that can switch the color to a color we have more of than the current color
+    private double switchColorToMoreHeldPoints = 1;
+    // The ratio of opponents cards to our cards that indicates they are a threat
+    private double significantLeadRatio = 0.5;
+    // The amount of point given to a card that is not the color of the highest player's last wild
+    private double playColorDislikedByHighestPlayerPoints = 1;
+    // The amount of points given to offensive cards when the player next to us is becoming a threat
+    private double reversePoints = 5;
+    private double skipPoints = 5;
+    private double drawTwoPoints = 6;
+    private double wildDrawFourPoints = 10;
+
+    // Point values given to colors in callColor method
+    // The coefficient of the number of cards of a certain color over the total amount in the hand
+    private double heldColorCoefficient = 3;
+    // The amount of points subtracted from colors that players have called with wilds
+    private double calledColorPoints = 1;
 
     /**
      * play - This method is called when it's your turn and you need to
@@ -89,17 +109,17 @@ public class as_UnoPlayer implements UnoPlayer {
 
                 // Add points to number cards to prioritize saving offensive cards
                 if (card.getRank() == Rank.NUMBER)
-                    // Given one point to start and then given more points for higher numbers to prioritize getting rid of high cards
-                    points += 1 + (card.getNumber() / 9.0);
+                    // Given points to start and then given more points for higher numbers to prioritize getting rid of high cards
+                    points += baseNumberPoints + (numberValueCoefficient * (card.getNumber() / 9.0));
 
                 // If color is not the same color as the current card and not a wild and the hand has more cards of this color than the current color
                 if (card.getColor() != upColor && card.getColor() != Color.NONE && colors[card.getColor().ordinal()] > colors[upColor.ordinal()])
-                    // If this card would be changing the color to the color we have most of, give 2 points
+                    // If this card would be changing the color to the color we have most of, give points
                     if (card.getColor() == maxColor)
-                        points += 2;
-                    // else, the color is just one we have more of, give 1 point
+                        points += switchColorToMostHeldPoints;
+                    // else, the color is just one we have more of, give points
                     else
-                        points++;
+                        points += switchColorToMoreHeldPoints;
 
                 // Agressive conditions ----------------------------------------------------------------------------------------------------------------
                 // These points are awarded when another player is close to winning and tries to hurt them
@@ -112,28 +132,25 @@ public class as_UnoPlayer implements UnoPlayer {
                 int minIndex = min(cardsInHands);
                 int minCards = cardsInHands[minIndex];
 
-                // The ratio of the least number of cards a player has to our hand (to be adjusted)
-                final double SIGNIFICANT_LEAD_RATIO = 0.5;
-
                 // If a player is close to winning or they have a significant lead
-                if ((minCards < 4 || leadRatio(hand, minCards) < SIGNIFICANT_LEAD_RATIO)
+                if ((minCards < 4 || leadRatio(hand, minCards) < significantLeadRatio)
                     // And this card is not a wild and this card's color is NOT one that the player with the lowest amount of cards last switched to
                     && (card.getColor() != Color.NONE && card.getColor() != state.getMostRecentColorCalledByUpcomingPlayers()[minIndex]))
                     // Give a point for playing a color that the winning player does not like
-                    points++;
+                    points += playColorDislikedByHighestPlayerPoints;
 
                 // If the player next to us has a significant lead or is close to winning
-                if ((leadRatio(hand, cardsInHands[0]) < SIGNIFICANT_LEAD_RATIO) || cardsInHands[0] < 4)
+                if ((leadRatio(hand, cardsInHands[0]) < significantLeadRatio) || cardsInHands[0] < 4)
                 {
-                    // Skips or reverses get five points to prioritize hurting the next player
-                    if (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE)
-                        points += 5;
-                    // +2s are better than skips or reverses so get more points
+                    // Award points to offensive points
+                    if (card.getRank() == Rank.REVERSE)
+                        points += reversePoints;
+                    else if (card.getRank() == Rank.SKIP)
+                        points += skipPoints;
                     else if (card.getRank() == Rank.DRAW_TWO)
-                        points += 6;
-                    // +4s are better than skips, reverses, and +2s so get more points
+                        points += drawTwoPoints;
                     else if (card.getRank() == Rank.WILD_D4)
-                        points += 10;
+                        points += wildDrawFourPoints;
                 }
                 
                 // If this point total is the new max, say this is the best card
@@ -162,23 +179,22 @@ public class as_UnoPlayer implements UnoPlayer {
     public Color callColor(List<Card> hand)
     {
         // Number of points each color gets
-        // Points are added or subtracted to each color based on fitness and then the one 
-        // with the highest amount of points is chosen
-        int[] colorPoints = new int[4];
+        // Points are added or subtracted to each color based on fitness and then the one with the highest amount of points is chosen
+        double[] colorPoints = new double[4];
         
         // Amount of each color in hand
         int[] colorCount = countColors(hand);
-        // Find highest amount of cards
-        int mostCardColor = max(colorCount);
-        // Add one point to the color with the most cards
-        colorPoints[mostCardColor]++;
+        // Loop through each color
+        for (int i = 0; i < colorCount.length; i++)
+            // Give each color a number of points proportional to the portional of the hand it takes up
+            colorPoints[i] = heldColorCoefficient * (colorCount / (double) hand.size());
         
         // Most recent colors
         // Subtract one point from a color if it was called by a player
         for (Color color : gameState.getMostRecentColorCalledByUpcomingPlayers())
         {
             if (color != null)
-                colorPoints[color.ordinal()]--;
+                colorPoints[color.ordinal()] -= calledColorPoints;
         }
             
         // Index of the color with the highest number of points
@@ -216,7 +232,21 @@ public class as_UnoPlayer implements UnoPlayer {
     }
 
     /**
-     * Returns the index of the maximum element of an array
+     * Returns the index of the maximum element of a double array
+     */
+    private int max(double[] arr)
+    {
+        int index = 0;
+        for (int i = 1; i < arr.length; i++)
+        {
+            if (arr[i] > arr[index])
+                index = i;
+        }
+        return index;
+    }
+
+    /**
+     * Returns the index of the maximum element of an int array
      */
     private int max(int[] arr)
     {
@@ -230,9 +260,23 @@ public class as_UnoPlayer implements UnoPlayer {
     }
 
     /**
-     * Returns the index of the minimum element of an array
+     * Returns the index of the minimum element of an int array
      */
     private int min(int[] arr)
+    {
+        int index = 0;
+        for (int i = 1; i < arr.length; i++)
+        {
+            if (arr[i] < arr[index])
+                index = i;
+        }
+        return index;
+    }
+
+    /**
+     * Returns the index of the minimum element of an int array
+     */
+    private int min(double[] arr)
     {
         int index = 0;
         for (int i = 1; i < arr.length; i++)
