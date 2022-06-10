@@ -78,6 +78,9 @@ public class as_UnoPlayer implements UnoPlayer {
                 // Count points towards this card being good
                 double points = 0;
 
+                // Passive conditions ------------------------------------------------------------------------------------------------------------------
+                // These points just prioritize getting rid of high cards and trying to play as optimally for ourselves without worrying about anyone else
+
                 // Add points to number cards to prioritize saving offensive cards
                 if (card.getRank() == Rank.NUMBER)
                     // Given one point to start and then given more points for higher numbers to prioritize getting rid of high cards
@@ -92,10 +95,29 @@ public class as_UnoPlayer implements UnoPlayer {
                     else
                         points++;
 
+                // Agressive conditions ----------------------------------------------------------------------------------------------------------------
+                // These points are awarded when another player is close to winning and tries to hurt them
+                // These conditions are usually activated when a player is close to winning or doing significantly better than us
+                // (These points are awarded in addition to the points awarded previously for benefitting ourselves)
+
                 // Get the number of cards in the other hands
                 int[] cardsInHands = state.getNumCardsInHandsOfUpcomingPlayers();
-                // If the player next to us has three or fewer cards
-                if (cardsInHands[0] < 4)
+                // Get the minimum number of cards (detect if someone is close to winning) and the corresponding player position
+                int minIndex = min(cardsInHands);
+                int minCards = cardsInHands[minIndex];
+
+                // The ratio of the least number of cards a player has to our hand (to be adjusted)
+                final double SIGNIFICANT_LEAD_RATIO = 0.5;
+
+                // If a player is close to winning or they have a significant lead
+                if ((minCards < 4 || leadRatio(hand, minCards) < SIGNIFICANT_LEAD_RATIO)
+                    // And this card is not a wild and this card's color is NOT one that the player with the lowest amount of cards last switched to
+                    && (card.getColor() != Color.NONE && card.getColor() != state.getMostRecentColorCalledByUpcomingPlayers()[minIndex]))
+                    // Give a point for playing a color that the winning player does not like
+                    points++;
+
+                // If the player next to us has a significant lead or is close to winning
+                if ((leadRatio(hand, cardsInHands[0]) < SIGNIFICANT_LEAD_RATIO) || cardsInHands[0] < 4)
                 {
                     // Skips or reverses get five points to prioritize hurting the next player
                     if (card.getRank() == Rank.SKIP || card.getRank() == Rank.REVERSE)
@@ -152,11 +174,23 @@ public class as_UnoPlayer implements UnoPlayer {
             if (color != null)
                 colorPoints[color.ordinal()]--;
         }
-
+            
         // Index of the color with the highest number of points
         int highestColor = max(colorPoints);
         // Return color with most points
         return Color.values()[highestColor];
+    }
+
+    /**
+     * Returns the "lead ratio" between us and a player. This ratio is the ratio of their cards to our cards.
+     * A ratio > 1 means that we are doing better, while a ratio < 1 means that they are doing better.
+     * 
+     * @param cards The number of cards the other player has.
+     * @param hand Our current hand.
+     */
+    double leadRatio(List<Card> hand, int cards)
+    {
+        return cards / (double) hand.size();
     }
     
     /** 
@@ -190,7 +224,7 @@ public class as_UnoPlayer implements UnoPlayer {
     }
 
     /**
-     * Returns the index of the maximum element of an array
+     * Returns the index of the minimum element of an array
      */
     private int min(int[] arr)
     {
