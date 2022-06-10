@@ -3,6 +3,12 @@ import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
     GameState gameState;
+    
+    // The base number of points a number card gets
+    double baseNumberPoints;
+    // The coefficient of the number's value over 9
+    double numberValueCoefficient;
+    // 
 
     /**
      * play - This method is called when it's your turn and you need to
