@@ -2,8 +2,10 @@ package unotraining;
 import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
+    public String name;
+
     // The game state stored for use during callColor
-    GameState gameState;
+    private GameState gameState;
     
     // Point values and coefficients given to cards in play method
     // The base number of points a number card gets
@@ -29,6 +31,12 @@ public class as_UnoPlayer implements UnoPlayer {
     private double heldColorCoefficient = 3;
     // The amount of points subtracted from colors that players have called with wilds
     private double calledColorPoints = 1;
+
+    public as_UnoPlayer(String name, double[] values)
+    {
+        this.name = name;
+        setValues(values);
+    }
 
     /**
      * play - This method is called when it's your turn and you need to
@@ -61,8 +69,7 @@ public class as_UnoPlayer implements UnoPlayer {
      * in which case you will be forced to draw a card (this will happen
      * automatically for you.)
      */
-    public int play(List<Card> hand, Card upCard, Color calledColor,
-        GameState state) 
+    public int play(List<Card> hand, Card upCard, Color calledColor, GameState state) 
     {
         // Get color if wild was played
         Color upColor = upCard.getColor();
@@ -325,5 +332,15 @@ public class as_UnoPlayer implements UnoPlayer {
         wildDrawFourPoints = values[9];
         heldColorCoefficient = values[10];
         calledColorPoints = values[11];
+    }
+
+    public String toString()
+    {
+        String str = name + "\nAttributes:";
+        for (double num : getValues())
+        {
+            str += "\n" + num;
+        }
+        return str;
     }
 }

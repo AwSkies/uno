@@ -55,11 +55,8 @@ public class Game {
      * be safely called.
      * @param scoreboard A fully-populated Scoreboard object that contains
      * the names of the contestants, in order.
-     * @param playerClassList[] An array of Strings, each of which is a
-     * fully-qualified package/class name of a class that implements the
-     * UnoPlayer interface.
      */
-    public Game(Scoreboard scoreboard, ArrayList<String> playerClassList) {
+    public Game(Scoreboard scoreboard) {
         this.scoreboard = scoreboard;
         deck = new Deck();
         h = new Hand[scoreboard.getNumPlayers()];
@@ -67,8 +64,7 @@ public class Game {
             new UnoPlayer.Color[scoreboard.getNumPlayers()];
         try {
             for (int i=0; i<scoreboard.getNumPlayers(); i++) {
-                h[i] = new Hand(playerClassList.get(i),
-                    scoreboard.getPlayerList()[i]);
+                h[i] = new Hand(scoreboard.getPlayerList()[i]);
                 for (int j=0; j<INIT_HAND_SIZE; j++) {
                     h[i].addCard(deck.draw());
                 }

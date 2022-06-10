@@ -10,13 +10,13 @@ package unotraining;
  */
 public class Scoreboard {
 
-    private String playerList[];
+    private as_UnoPlayer playerList[];
     private int scores[];
 
     /**
      * Instantiate a new Scoreboard object, given an array of player names.
      */
-    public Scoreboard(String playerList[]) {
+    public Scoreboard(as_UnoPlayer playerList[]) {
         scores = new int[playerList.length];
         for (int i=0; i<playerList.length; i++) {
             scores[i] = 0;
@@ -55,7 +55,7 @@ public class Scoreboard {
     /**
      * Return the list of player names.
      */
-    public String[] getPlayerList() {
+    public as_UnoPlayer[] getPlayerList() {
         return playerList;
     }
 

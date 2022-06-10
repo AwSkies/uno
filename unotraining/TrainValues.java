@@ -14,7 +14,7 @@ import java.io.FileReader;
  * provided to the screen about game flow and final scores.</p>
  * @since 1.0
  */
-public class UnoSimulation {
+public class TrainValues {
 
     /** 
      * Controls how many messages fly by the screen while narrating an Uno
@@ -42,13 +42,6 @@ public class UnoSimulation {
      */
     public static final String PLAYER_FILENAME = "players.txt";
 
-    /*
-     * The names ("Joe") and classes ("uno.jsmith_UnoPlayer") of competing
-     * players.
-     */
-    private static ArrayList<String> playerNames = new ArrayList<String>();
-    private static ArrayList<String> playerClasses = new ArrayList<String>();
-
     /** 
      * Run an Uno simulation of some number of games pitting some set of
      * opponents against each other. The mandatory command-line argument
@@ -58,36 +51,50 @@ public class UnoSimulation {
      * magnitude of output.
      */
     public static void main(String args[]) {
-        int numGames = 0;
-        if (args.length != 1  &&  args.length != 2) {
-            System.out.println("Usage: UnoSimulation numberOfGames [verbose|quiet].");
+        PRINT_VERBOSE = false;
+        int numGames = 50000;
+        if (args.length != 1) {
+            System.out.println("Usage: TrainValues startingGeneration.");
             System.exit(1);
         }
-        numGames = Integer.valueOf(args[0]);
-        if (args.length == 2  &&  args[1].equals("quiet")) {
-            PRINT_VERBOSE = false;
-        }
-        if (args.length == 2  &&  args[1].equals("verbose")) {
-            PRINT_VERBOSE = true;
-        }
-        try {
-            loadPlayerData();
-            Scoreboard s = new Scoreboard(playerNames.toArray(new String[0]));
-            for (int i=0; i<numGames; i++) {
-                Game g = new Game(s,playerClasses);
-                if(!g.play()) {
-                    System.out.println("Illegal play. Aborting.");
-                    return;
+
+        // Starting generation
+        int startingGen = Integer.valueOf(args[0]);
+
+        // Initialize players from starting param list
+        ArrayList<as_UnoPlayer> players = new ArrayList<as_UnoPlayer>();
+        // Read file and parse values
+
+        // For each generation
+        for (int gen = startingGen; gen < 10000; gen++)
+        {
+            try
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    ArrayList<as_UnoPlayer> newPlayers = new ArrayList<as_UnoPlayer>();
+                    // Initialize players for this gen based on mutations and stuff from the previous gen
+                    players = newPlayers;
                 }
+                Scoreboard s = new Scoreboard(players);
+                for (int i=0; i<numGames; i++)
+                {
+                    Game g = new Game(s);
+                    if(!g.play()) 
+                    {
+                        System.out.println("Illegal play. Aborting.");
+                        return;
+                    }
+                }
+                System.out.println(s);
             }
-            System.out.println(s);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private static void loadPlayerData() throws Exception {
+    private static void loadPlayerData(int generation) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader(
             PLAYER_FILENAME));
         String playerLine = br.readLine();
@@ -97,6 +104,7 @@ public class UnoSimulation {
             playerClasses.add("uno." + line.next() + "_UnoPlayer");
             playerLine = br.readLine();
         }
+
     }
 
 }

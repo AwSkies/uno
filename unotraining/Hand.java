@@ -10,13 +10,13 @@ import java.util.ArrayList;
  * responsible for playing a Card (<i>i.e.</i>, actually choosing a card to
  * play) when the player's turn comes up. To do this, it implements the
  * strategy pattern by which this choice can be delegated to an arbitrary
- * implementer of the UnoPlayer class.</p>
+ * implementer of the as_UnoPlayer class.</p>
  * @since 1.0
  */
 public class Hand {
 
     private ArrayList<Card> cards;
-    private UnoPlayer player;
+    private as_UnoPlayer player;
     private String playerName;
 
     /**
@@ -25,17 +25,16 @@ public class Hand {
      * pattern whereby the constructor accepts various strategies that
      * implement the UnoPlayer interface.
      */
-    public Hand(String unoPlayerClassName, String playerName) {
+    public Hand(as_UnoPlayer player) {
         try {
-            player = (UnoPlayer)
-                Class.forName(unoPlayerClassName).newInstance();
+            this.player = player;
         }
         catch (Exception e) {
-            System.out.println("Problem with " + unoPlayerClassName + ".");
+            System.out.println("Problem with " + player + ".");
             e.printStackTrace();
             System.exit(1);
         }
-        this.playerName = playerName;
+        this.playerName = player.name;
         cards = new ArrayList<Card>();
     }
 
@@ -88,7 +87,7 @@ public class Hand {
      * constructor.)
      * @return A Color value, <i>not</i> Color.NONE.
      */
-    UnoPlayer.Color callColor(Game game) {
+    as_UnoPlayer.Color callColor(Game game) {
         return player.callColor(cards);
     }
 
