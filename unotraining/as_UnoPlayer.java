@@ -1,8 +1,12 @@
 package unotraining;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
     public String name;
+    int generation;
+    public static final int NUM_VALUES = 12;
 
     // The game state stored for use during callColor
     private GameState gameState;
@@ -32,9 +36,10 @@ public class as_UnoPlayer implements UnoPlayer {
     // The amount of points subtracted from colors that players have called with wilds
     private double calledColorPoints = 1;
 
-    public as_UnoPlayer(String name, double[] values)
+    public as_UnoPlayer(String name, int generation, double[] values)
     {
         this.name = name;
+        this.generation = generation;
         setValues(values);
     }
 
@@ -332,6 +337,38 @@ public class as_UnoPlayer implements UnoPlayer {
         wildDrawFourPoints = values[9];
         heldColorCoefficient = values[10];
         calledColorPoints = values[11];
+    }
+
+    /**
+     * Dumps all of the values into a file with the correct generation and score
+     */
+    public void dumpValues(int generation, int score)
+    {
+        // Create file
+        File file = new File("gen" + generation + ".txt");
+        try
+        {
+            // Create file
+            file.createNewFile();
+            // Create writer
+            FileWriter writer = new FileWriter(file);
+
+            double[] values = getValues();
+            String msg = "" + values[0];
+            for (int i = 1; i < values.length; i++)
+            {
+                msg += "," + values[i];
+            }
+            msg += "\n" + score;
+
+            writer.write(msg);
+            writer.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public String toString()
