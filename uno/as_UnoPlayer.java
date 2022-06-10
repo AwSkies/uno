@@ -104,7 +104,7 @@ public class as_UnoPlayer implements UnoPlayer {
                     else if (card.getRank() == Rank.DRAW_TWO)
                         points += 6;
                     // +4s are better than skips, reverses, and +2s so get more points
-                    else if (card.getRank() == Rank.WILD_D4))
+                    else if (card.getRank() == Rank.WILD_D4)
                         points += 10;
                 }
                 
