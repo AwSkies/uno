@@ -1,8 +1,6 @@
 package unotraining;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -113,9 +111,7 @@ public class TrainValues {
             for (int p = 0; p < permutationsPerGen; p++)
             {
                 // Randomize player order
-                ArrayList<as_UnoPlayer> randomOrderedPlayersList = (ArrayList<as_UnoPlayer>) Arrays.asList(players);
-                Collections.shuffle(randomOrderedPlayersList);
-                as_UnoPlayer[] randomOrderedPlayers = (as_UnoPlayer[]) randomOrderedPlayersList.toArray();
+                as_UnoPlayer[] randomOrderedPlayers = shuffleArray(players);
 
                 // Create and run games
                 Scoreboard s = new Scoreboard(randomOrderedPlayers);
@@ -192,4 +188,18 @@ public class TrainValues {
         return values;
     }
 
+    private static as_UnoPlayer[] shuffleArray(as_UnoPlayer[] ar)
+    {
+        Random rnd = new Random();
+        as_UnoPlayer[] newArr = ar.clone();
+        for (int i = ar.length - 1; i > 0; i--)
+        {
+            int index = rnd.nextInt(i + 1);
+            // Simple swap
+            as_UnoPlayer a = newArr[index];
+            newArr[index] = newArr[i];
+            newArr[i] = a;
+        }
+        return newArr;
+    }
 }
