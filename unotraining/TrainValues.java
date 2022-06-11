@@ -79,6 +79,7 @@ public class TrainValues {
         as_UnoPlayer[] players = new as_UnoPlayer[numPlayers];
         double[] bestValues = new double[0];
         int highestPoints = 0;
+        int bestGen = 0;
         // Read the values from the starting generation with error handling
         try
         {
@@ -144,14 +145,20 @@ public class TrainValues {
                 if (points[i] > points[winner])
                     winner = i;
             }
-            // Save best values
-            bestValues = players[winner].getValues();
-            highestPoints = points[winner];
+            // Save best values if this performed better than the previous best generation
+            if (points[winner] > highestPoints)
+            {
+                highestPoints = points[winner];
+                bestValues = players[winner].getValues();
+                bestGen = gen;
+            }
+            // Dump values for current generation
             players[winner].dumpValues(points[winner]);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
             System.out.println("Points: " + highestPoints);
         }
+        System.out.println(stopPoints + " points surpassed. Best generation: " + bestGen);
     }
 
     /**
