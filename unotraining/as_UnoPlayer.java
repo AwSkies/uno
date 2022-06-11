@@ -373,10 +373,11 @@ public class as_UnoPlayer implements UnoPlayer {
 
     public String toString()
     {
-        String str = name + "\nAttributes:";
-        for (double num : getValues())
+        double[] values = getValues();
+        String str = name + "\nAttributes: " + values[0];
+        for (int i = 1; i < values.length; i++)
         {
-            str += "\n" + num;
+            str += "\n" + values[i];
         }
         return str;
     }
