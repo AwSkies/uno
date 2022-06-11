@@ -92,10 +92,10 @@ public class TrainValues {
             System.exit(1);
         }
 
+        System.out.println("Beginning generation 0...");
         // For each generation
         for (int gen = startingGen; highestPoints < stopPoints; gen++)
         {
-            System.out.println("Beginning generation " + gen + "...");
             for (int i = 0; i < players.length; i++)
             {
                 double[] values;
