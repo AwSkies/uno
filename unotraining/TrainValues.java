@@ -54,7 +54,7 @@ public class TrainValues {
         
         // Default values
         int startingGen = 0;
-        int stopPoints = 5000000;
+        int stopPoints = 10000000;
         int numPlayers = 4;
         int gamesPerGen = 100000;
         int permutationsPerGen = 4;
