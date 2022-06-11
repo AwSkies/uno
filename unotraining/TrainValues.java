@@ -1,6 +1,8 @@
 package unotraining;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -110,9 +112,13 @@ public class TrainValues {
             int[] points = new int[players.length];
             for (int p = 0; p < permutationsPerGen; p++)
             {
-                int[] indexMap;
-                
-                Scoreboard s = new Scoreboard(players);
+                // Randomize player order
+                ArrayList<as_UnoPlayer> randomOrderedPlayersList = (ArrayList<as_UnoPlayer>) Arrays.asList(players);
+                Collections.shuffle(randomOrderedPlayersList);
+                as_UnoPlayer[] randomOrderedPlayers = (as_UnoPlayer[]) randomOrderedPlayersList.toArray();
+
+                // Create and run games
+                Scoreboard s = new Scoreboard(randomOrderedPlayers);
                 for (int i=0; i < gamesPerGen; i++)
                 {
                     Game g = new Game(s);
@@ -122,12 +128,28 @@ public class TrainValues {
                         return;
                     }
                 }
+
+                // Add points
+                for (int i = 0; i < randomOrderedPlayers.length; i++) {
+                    for (int j = 0; j < players.length; j++) {
+                        if (randomOrderedPlayers[i].name.equals(players[j].name)) {
+                            points[j] += s.getScore(i);
+                        }
+                    }
+                }
             }
 
             // Calculate winner
+            int winner = 0;
+            for (int i = 1; i < points.length; i++) {
+                if (points[i] > points[winner])
+                    winner = i;
+            }
 
+            bestValues = players[winner].getValues();
+            players[winner].dumpValues(gen, points[winner]);
 
-            System.out.println("Finished generation " + gen + ".\nBest performer: ");
+            System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
         }
     }
 
@@ -137,17 +159,17 @@ public class TrainValues {
      */
     private static double[] readValues(int generation) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader("gen" + generation + ".txt"));
-        Scanner line = new Scanner(br.readLine()).useDelimiter(",");
+        try (Scanner line = new Scanner(br.readLine()).useDelimiter(",")) {
+            double[] values  = new double[as_UnoPlayer.NUM_VALUES];
+            for (int i = 0; i < values.length; i++)
+            {
+                values[i] = Double.parseDouble(line.next());
+            }
+            // Close streams
+            br.close();
 
-        double[] values  = new double[as_UnoPlayer.NUM_VALUES];
-        for (int i = 0; i < values.length; i++)
-        {
-            values[i] = Double.parseDouble(line.next());
+            return values;
         }
-        // Close streams
-        br.close();
-
-        return values;
     }
 
     /**
