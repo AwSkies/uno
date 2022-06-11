@@ -92,10 +92,10 @@ public class TrainValues {
             System.exit(1);
         }
 
-        System.out.println("Beginning generation 0...");
         // For each generation
         for (int gen = startingGen; highestPoints < stopPoints; gen++)
         {
+            System.out.println("Beginning generation " + gen + "...");
             for (int i = 0; i < players.length; i++)
             {
                 double[] values;
@@ -113,7 +113,6 @@ public class TrainValues {
             int[] points = new int[players.length];
             for (int p = 0; p < permutationsPerGen; p++)
             {
-                System.out.println("Running permutation " + p + "...");
                 // Randomize player order
                 as_UnoPlayer[] randomOrderedPlayers = shuffleArray(players);
 
