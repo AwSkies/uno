@@ -156,8 +156,8 @@ public class TrainValues {
             players[winner].dumpValues(points[winner]);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
-            System.out.println("Points: " + highestPoints);
-            System.out.println("Current best generation: " + bestGen);
+            System.out.println("Points: " + points[winner]);
+            System.out.println("Current best generation: " + bestGen + ", Points: " + highestPoints);
         }
         System.out.println(stopPoints + " points surpassed. Best generation: " + bestGen);
     }
