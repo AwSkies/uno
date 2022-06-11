@@ -342,7 +342,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Dumps all of the values into a file with the correct generation and score
      */
-    public void dumpValues(int generation, int score)
+    public void dumpValues(int score)
     {
         // Create file
         File file = new File("values/gen" + generation + ".txt");
