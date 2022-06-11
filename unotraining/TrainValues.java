@@ -91,7 +91,7 @@ public class TrainValues {
         }
 
         // For each generation
-        for (int gen = startingGen; gen < numGenerations; gen++)
+        for (int gen = startingGen + 1; gen < numGenerations; gen++)
         {
             System.out.println("Beginning generation " + gen + "...");
             for (int i = 0; i < players.length; i++)
