@@ -135,6 +135,7 @@ public class TrainValues {
                         }
                     }
                 }
+                System.out.println("Finished permutation " + p + ". Winner: " + randomOrderedPlayers[s.getWinner()].name);
             }
 
             // Calculate winner
@@ -149,6 +150,7 @@ public class TrainValues {
             players[winner].dumpValues(points[winner]);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
+            System.out.println("Points: " + highestPoints);
         }
     }
 
