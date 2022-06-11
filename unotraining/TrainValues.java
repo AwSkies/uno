@@ -113,6 +113,7 @@ public class TrainValues {
             int[] points = new int[players.length];
             for (int p = 0; p < permutationsPerGen; p++)
             {
+                System.out.println("Running permutation " + p + "...");
                 // Randomize player order
                 as_UnoPlayer[] randomOrderedPlayers = shuffleArray(players);
 
