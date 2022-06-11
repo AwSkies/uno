@@ -158,7 +158,7 @@ public class TrainValues {
      * @param generation The generation to take the information from
      */
     private static double[] readValues(int generation) throws Exception {
-        BufferedReader br = new BufferedReader(new FileReader("gen" + generation + ".txt"));
+        BufferedReader br = new BufferedReader(new FileReader("values/gen" + generation + ".txt"));
         try (Scanner line = new Scanner(br.readLine()).useDelimiter(",")) {
             double[] values  = new double[as_UnoPlayer.NUM_VALUES];
             for (int i = 0; i < values.length; i++)

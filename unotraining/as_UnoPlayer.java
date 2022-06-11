@@ -345,7 +345,7 @@ public class as_UnoPlayer implements UnoPlayer {
     public void dumpValues(int generation, int score)
     {
         // Create file
-        File file = new File("gen" + generation + ".txt");
+        File file = new File("values/gen" + generation + ".txt");
         try
         {
             // Create file
