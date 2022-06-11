@@ -48,13 +48,13 @@ public class TrainValues {
      */
     public static void main(String args[]) {
         if (args.length == 1 && args[0].equals("-h")) {
-            System.out.println("Usage: TrainValues [startingGeneration] [numGenerations] [numPlayers] [gamesPerGen] [permutationsPerGen]");
+            System.out.println("Usage: TrainValues [startingGeneration] [stopPoints] [numPlayers] [gamesPerGen] [permutationsPerGen]");
             System.exit(1);
         }
         
         // Default values
         int startingGen = 0;
-        int numGenerations = 10000;
+        int stopPoints = 10000;
         int numPlayers = 4;
         int gamesPerGen = 50000;
         int permutationsPerGen = 4;
@@ -64,7 +64,7 @@ public class TrainValues {
             startingGen = Integer.parseInt(args[0]);
 
         if (args.length > 1)
-            numGenerations = Integer.parseInt(args[1]);
+            stopPoints = Integer.parseInt(args[1]);
 
         if (args.length > 2)
             numPlayers = Integer.parseInt(args[2]);
@@ -78,6 +78,7 @@ public class TrainValues {
         // Initialize players from starting param list
         as_UnoPlayer[] players = new as_UnoPlayer[numPlayers];
         double[] bestValues = new double[0];
+        int highestPoints = 0;
         // Read the values from the starting generation with error handling
         try
         {
@@ -91,7 +92,7 @@ public class TrainValues {
         }
 
         // For each generation
-        for (int gen = startingGen + 1; gen < numGenerations; gen++)
+        for (int gen = startingGen; highestPoints > stopPoints; gen++)
         {
             System.out.println("Beginning generation " + gen + "...");
             for (int i = 0; i < players.length; i++)
@@ -138,6 +139,7 @@ public class TrainValues {
             }
             // Save best values
             bestValues = players[winner].getValues();
+            highestPoints = points[winner];
             players[winner].dumpValues(gen, points[winner]);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
