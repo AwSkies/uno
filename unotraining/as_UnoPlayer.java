@@ -377,7 +377,7 @@ public class as_UnoPlayer implements UnoPlayer {
         String str = name + "\nAttributes: " + values[0];
         for (int i = 1; i < values.length; i++)
         {
-            str += "\n" + values[i];
+            str += "," + values[i];
         }
         return str;
     }
