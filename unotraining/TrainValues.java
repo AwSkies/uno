@@ -56,7 +56,7 @@ public class TrainValues {
         int startingGen = 0;
         int stopPoints = 5000000;
         int numPlayers = 4;
-        int gamesPerGen = 50000;
+        int gamesPerGen = 100000;
         int permutationsPerGen = 4;
         
         // Set parameter based on arguments
