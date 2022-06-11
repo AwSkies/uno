@@ -149,9 +149,9 @@ public class TrainValues {
             if (points[winner] > highestPoints)
             {
                 highestPoints = points[winner];
+                bestGen = gen;
             }
             bestValues = players[winner].getValues();
-            bestGen = gen;
             // Dump values for current generation
             players[winner].dumpValues(points[winner]);
 
