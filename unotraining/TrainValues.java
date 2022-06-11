@@ -92,7 +92,7 @@ public class TrainValues {
         }
 
         // For each generation
-        for (int gen = startingGen + 1; highestPoints > stopPoints; gen++)
+        for (int gen = startingGen + 1; highestPoints < stopPoints; gen++)
         {
             System.out.println("Beginning generation " + gen + "...");
             for (int i = 0; i < players.length; i++)
