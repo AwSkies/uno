@@ -94,16 +94,11 @@ public class TrainValues {
         for (int gen = startingGen; gen < numGenerations; gen++)
         {
             System.out.println("Beginning generation " + gen + "...");
-            as_UnoPlayer[] newPlayers = new as_UnoPlayer[players.length];
-            for (int i = 0; i < newPlayers.length; i++)
+            for (int i = 0; i < players.length; i++)
             {
                 // Initialize players for this gen based on mutations and stuff from the previous gen
-                for (int j = 0; j < newPlayers.length; j++)
-                {
-                    newPlayers[j] = new as_UnoPlayer("Player" + j, startingGen, mutateValues(bestValues));
-                }
+                players[i] = new as_UnoPlayer("Player" + i, startingGen, mutateValues(bestValues));
             }
-            players = newPlayers;
 
             System.out.println("Running games...");
 
@@ -141,7 +136,7 @@ public class TrainValues {
                 if (points[i] > points[winner])
                     winner = i;
             }
-
+            // Save best values
             bestValues = players[winner].getValues();
             players[winner].dumpValues(gen, points[winner]);
 
