@@ -48,7 +48,7 @@ public class TrainValues {
      */
     public static void main(String args[]) {
         if (args.length == 1 && args[0].equals("-h")) {
-            System.out.println("Usage: TrainValues [startingGeneration] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
+            System.out.println("Usage: TrainValues [startingGeneration] [points | ] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
             System.exit(1);
         }
         
@@ -77,7 +77,9 @@ public class TrainValues {
 
         double[] bestValues = new double[0];
         double[] baselineValues = new double[0];
-        double bestRate = 0;
+        double bestRatingRate = 0;
+        int bestRatingPoints = 0;
+        double bestRating = 0;
         int bestGen = 0;
         // Read the values from the starting generation with error handling
         try
@@ -113,7 +115,9 @@ public class TrainValues {
 
             // Store mutated players
             as_UnoPlayer[] mutations = new as_UnoPlayer[playersPerGen];
-            double currentGenBestRate = 0;
+            double currentGenRatingRate = 0;
+            int currentGenRatingPoints = 0;
+            double currentGenBestRating = 0;
             int bestPlayer = 0;
             for (int p = 0; p < playersPerGen; p++)
             {
@@ -135,32 +139,38 @@ public class TrainValues {
                 }
                 System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
 
-                if (s.getWinRate(0) > currentGenBestRate) {
-                    currentGenBestRate = s.getWinRate(0);
+                if (s.getWinRate(0) * s.getScore(0) > currentGenRatingRate) {
+                    currentGenRatingPoints = s.getScore(0);
+                    currentGenRatingRate = s.getWinRate(0);
+                    currentGenBestRating = currentGenRatingPoints * currentGenRatingRate;
                     bestPlayer = p;
                 }
             }
 
             // Save best values if this performed better than the previous best generation
-            if (currentGenBestRate > bestRate)
+            if (currentGenRatingRate > bestRating)
             {
-                bestRate = currentGenBestRate;
+                bestRatingPoints = currentGenRatingPoints;
+                bestRatingRate = currentGenRatingRate;
+                bestRating = currentGenBestRating;
                 bestGen = gen;
             }
             bestValues = mutations[bestPlayer].getValues();
             // Dump values for current generation
-            mutations[bestPlayer].dumpValues(currentGenBestRate);
+            mutations[bestPlayer].dumpValues(currentGenRatingPoints, currentGenRatingRate);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + mutations[bestPlayer]);
-            System.out.println("Rate: " + currentGenBestRate);
-            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRate);
+            System.out.println("Rate: " + currentGenRatingRate);
+            System.out.println("Points: " + currentGenRatingPoints);
+            System.out.println("Rating: " + currentGenBestRating);
+            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRatingRate);
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
 
     private static double[] readValues(String name) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader("values/" + name + ".txt"));
+        BufferedReader br = new BufferedReader(new FileReader("values/" + name + ".csv"));
         try (Scanner line = new Scanner(br.readLine()).useDelimiter(",")) {
             double[] values  = new double[as_UnoPlayer.NUM_VALUES];
             for (int i = 0; i < values.length; i++)
@@ -175,7 +185,7 @@ public class TrainValues {
     }
 
     /**
-     * Reads values from a file with the name "gen[generation].txt"
+     * Reads values from a file with the name "gen[generation].csv"
      * @param generation The generation to take the information from
      */
     private static double[] readValues(int generation) throws Exception {

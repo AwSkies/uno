@@ -342,10 +342,10 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Dumps all of the values into a file with the correct generation and score
      */
-    public void dumpValues(double rate)
+    public void dumpValues(int points, double rate)
     {
         // Create file
-        File file = new File("values/gen" + generation + ".txt");
+        File file = new File("values/gen" + generation + ".csv");
         try
         {
             // Create file
@@ -359,7 +359,7 @@ public class as_UnoPlayer implements UnoPlayer {
             {
                 msg += "," + values[i];
             }
-            msg += "\n" + rate;
+            msg += "\n" points + "," + rate + "," + points * rate;
 
             writer.write(msg);
             writer.close();
