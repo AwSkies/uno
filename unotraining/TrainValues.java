@@ -57,7 +57,7 @@ public class TrainValues {
         int maxGenerations = 100;
         int numPlayers = 4;
         int gamesPerGen = 10000;
-        int playersPerGen = 25;
+        int playersPerGen = 50;
         
         // Set parameter based on arguments
         if (args.length > 0)
@@ -158,7 +158,7 @@ public class TrainValues {
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
 
-    private static double[] readValues(String name)
+    private static double[] readValues(String name) throws Exception
     {
         BufferedReader br = new BufferedReader(new FileReader("values/" + name + ".txt"));
         try (Scanner line = new Scanner(br.readLine()).useDelimiter(",")) {
@@ -178,8 +178,8 @@ public class TrainValues {
      * Reads values from a file with the name "gen[generation].txt"
      * @param generation The generation to take the information from
      */
-    private static double[] readValues(int generation) {
-        readValues("gen" + generation);
+    private static double[] readValues(int generation) throws Exception {
+        return readValues("gen" + generation);
     }
 
     /**
