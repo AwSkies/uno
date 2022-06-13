@@ -48,23 +48,23 @@ public class TrainValues {
      */
     public static void main(String args[]) {
         if (args.length == 1 && args[0].equals("-h")) {
-            System.out.println("Usage: TrainValues [startingGeneration] [stopPoints] [numPlayers] [gamesPerGen] [permutationsPerGen]");
+            System.out.println("Usage: TrainValues [startingGeneration] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
             System.exit(1);
         }
         
         // Default values
         int startingGen = 0;
-        int stopPoints = 10000000;
+        int maxGenerations = 100;
         int numPlayers = 4;
-        int gamesPerGen = 100000;
-        int permutationsPerGen = 4;
+        int gamesPerGen = 10000;
+        int playersPerGen = 25;
         
         // Set parameter based on arguments
         if (args.length > 0)
             startingGen = Integer.parseInt(args[0]);
 
         if (args.length > 1)
-            stopPoints = Integer.parseInt(args[1]);
+            maxGenerations = Integer.parseInt(args[1]);
 
         if (args.length > 2)
             numPlayers = Integer.parseInt(args[2]);
@@ -73,17 +73,24 @@ public class TrainValues {
             gamesPerGen = Integer.parseInt(args[3]);
 
         if (args.length > 4)
-            permutationsPerGen = Integer.parseInt(args[4]);
+            playersPerGen = Integer.parseInt(args[4]);
 
-        // Initialize players from starting param list
-        as_UnoPlayer[] players = new as_UnoPlayer[numPlayers];
         double[] bestValues = new double[0];
-        int highestPoints = 0;
+        double[] baselineValues = new double[0];
+        double bestRate = 0;
         int bestGen = 0;
         // Read the values from the starting generation with error handling
         try
         {
-            bestValues = readValues(startingGen);
+            baselineValues = readValues("baseline");
+            if (startingGen != 0)
+            {
+                bestValues = readValues(startingGen);
+            }
+            else
+            {
+                bestValues = baselineValues;
+            }
         }
         catch (Exception e)
         {
@@ -92,32 +99,31 @@ public class TrainValues {
             System.exit(1);
         }
 
+        // Initialize players array
+        UnoPlayer[] players = new UnoPlayer[numPlayers];
+        for (int i = 1; i < numPlayers; i++)
+        {
+            players[i] = new random_UnoPlayer();
+        }
+
         // For each generation
-        for (int gen = startingGen; highestPoints < stopPoints; gen++)
+        for (int gen = startingGen + 1; gen < maxGenerations; gen++)
         {
             System.out.println("Beginning generation " + gen + "...");
-            for (int i = 0; i < players.length; i++)
+
+            // Store mutated players
+            as_UnoPlayer[] mutations = new as_UnoPlayer[playersPerGen];
+            double currentGenBestRate = 0;
+            int bestPlayer = 0;
+            for (int p = 0; p < playersPerGen; p++)
             {
-                double[] values;
-                if (gen != startingGen)
-                    values = mutateValues(bestValues);
-                else
-                    values = bestValues;
-
-                // Initialize players for this gen based on mutations and stuff from the previous gen
-                players[i] = new as_UnoPlayer("Player" + i, gen, values);
-            }
-
-            System.out.println("Running games...");
-
-            int[] points = new int[players.length];
-            for (int p = 0; p < permutationsPerGen; p++)
-            {
-                // Randomize player order
-                as_UnoPlayer[] randomOrderedPlayers = shuffleArray(players);
+                // Make new player based on mutations from previous generation
+                as_UnoPlayer currentPlayer = new as_UnoPlayer("Player" + p, gen, mutateValues(bestValues));
+                players[0] = currentPlayer;
+                mutations[p] = currentPlayer;
 
                 // Create and run games
-                Scoreboard s = new Scoreboard(randomOrderedPlayers);
+                Scoreboard s = new Scoreboard(players);
                 for (int i=0; i < gamesPerGen; i++)
                 {
                     Game g = new Game(s);
@@ -127,47 +133,34 @@ public class TrainValues {
                         return;
                     }
                 }
+                System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
 
-                // Add points
-                for (int i = 0; i < randomOrderedPlayers.length; i++) {
-                    for (int j = 0; j < players.length; j++) {
-                        if (randomOrderedPlayers[i].name.equals(players[j].name)) {
-                            points[j] += s.getScore(i);
-                        }
-                    }
+                if (s.getWinRate(0) > currentGenBestRate) {
+                    currentGenBestRate = s.getWinRate(0);
+                    bestPlayer = p;
                 }
-                System.out.println("Finished permutation " + p + ". Winner: " + randomOrderedPlayers[s.getWinner()].name);
             }
 
-            // Calculate winner
-            int winner = 0;
-            for (int i = 1; i < points.length; i++) {
-                if (points[i] > points[winner])
-                    winner = i;
-            }
             // Save best values if this performed better than the previous best generation
-            if (points[winner] > highestPoints)
+            if (currentGenBestRate > bestRate)
             {
-                highestPoints = points[winner];
+                bestRate = currentGenBestRate;
                 bestGen = gen;
             }
-            bestValues = players[winner].getValues();
+            bestValues = mutations[bestPlayer].getValues();
             // Dump values for current generation
-            players[winner].dumpValues(points[winner]);
+            mutations[bestPlayer].dumpValues(bestRate);
 
-            System.out.println("Finished generation " + gen + ".\nBest performer: " + players[winner]);
-            System.out.println("Points: " + points[winner]);
-            System.out.println("Current best generation: " + bestGen + ", Points: " + highestPoints);
+            System.out.println("Finished generation " + gen + ".\nBest performer: " + mutations[bestPlayer]);
+            System.out.println("Rate: " + currentGenBestRate);
+            System.out.println("Current best generation: " + bestGen + ", Points: " + bestRate);
         }
-        System.out.println(stopPoints + " points surpassed. Best generation: " + bestGen);
+        System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
 
-    /**
-     * Reads values from a file with the name "gen[generation].txt"
-     * @param generation The generation to take the information from
-     */
-    private static double[] readValues(int generation) throws Exception {
-        BufferedReader br = new BufferedReader(new FileReader("values/gen" + generation + ".txt"));
+    private static double[] readValues(String name)
+    {
+        BufferedReader br = new BufferedReader(new FileReader("values/" + name + ".txt"));
         try (Scanner line = new Scanner(br.readLine()).useDelimiter(",")) {
             double[] values  = new double[as_UnoPlayer.NUM_VALUES];
             for (int i = 0; i < values.length; i++)
@@ -179,6 +172,14 @@ public class TrainValues {
 
             return values;
         }
+    }
+
+    /**
+     * Reads values from a file with the name "gen[generation].txt"
+     * @param generation The generation to take the information from
+     */
+    private static double[] readValues(int generation) {
+        readValues("gen" + generation);
     }
 
     /**
@@ -199,20 +200,5 @@ public class TrainValues {
             values[i] = valuesToMutate[i] + (sign * Math.random() * Math.random());
         }
         return values;
-    }
-
-    private static as_UnoPlayer[] shuffleArray(as_UnoPlayer[] ar)
-    {
-        Random rnd = new Random();
-        as_UnoPlayer[] newArr = ar.clone();
-        for (int i = ar.length - 1; i > 0; i--)
-        {
-            int index = rnd.nextInt(i + 1);
-            // Simple swap
-            as_UnoPlayer a = newArr[index];
-            newArr[index] = newArr[i];
-            newArr[i] = a;
-        }
-        return newArr;
     }
 }

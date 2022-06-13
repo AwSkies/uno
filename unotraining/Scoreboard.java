@@ -10,17 +10,17 @@ package unotraining;
  */
 public class Scoreboard {
 
-    private as_UnoPlayer playerList[];
-    private int scores[];
+    private UnoPlayer[] playerList;
+    private int[] scores;
+    private int[] gamesWon;
+    private int games = 0;
 
     /**
      * Instantiate a new Scoreboard object, given an array of player names.
      */
-    public Scoreboard(as_UnoPlayer playerList[]) {
+    public Scoreboard(UnoPlayer playerList[]) {
         scores = new int[playerList.length];
-        for (int i=0; i<playerList.length; i++) {
-            scores[i] = 0;
-        }
+        gamesWon = new int[playerList.length];
         this.playerList = playerList;
     }
 
@@ -30,7 +30,9 @@ public class Scoreboard {
      * @param points The number of points to award.
      */
     public void addToScore(int player, int points) {
-        scores[player] += points; 
+        scores[player] += points;
+        gamesWon[player]++;
+        games++;
     }
 
     /**
@@ -39,6 +41,11 @@ public class Scoreboard {
      */
     public int getScore(int player) {
         return scores[player];
+    }
+
+    public double getWinRate(int player)
+    {
+        return gamesWon[player] / (double) games;
     }
 
     /**
@@ -55,7 +62,7 @@ public class Scoreboard {
     /**
      * Return the list of player names.
      */
-    public as_UnoPlayer[] getPlayerList() {
+    public UnoPlayer[] getPlayerList() {
         return playerList;
     }
 
@@ -79,6 +86,18 @@ public class Scoreboard {
         for (int i=1; i<scores.length; i++) {
             if (scores[i] > topScore) {
                 topScore = scores[i];
+                winner = i;
+            }
+        }
+        return winner;
+    }
+
+    public int getMostWon() {
+        int winner = 0;
+
+        for (int i = 1; i < playerList.length; i++)
+        {
+            if (gamesWon[i] > gamesWon[winner]) {
                 winner = i;
             }
         }
