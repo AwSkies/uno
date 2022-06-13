@@ -149,11 +149,11 @@ public class TrainValues {
             }
             bestValues = mutations[bestPlayer].getValues();
             // Dump values for current generation
-            mutations[bestPlayer].dumpValues(bestRate);
+            mutations[bestPlayer].dumpValues(currentGenBestRate);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + mutations[bestPlayer]);
             System.out.println("Rate: " + currentGenBestRate);
-            System.out.println("Current best generation: " + bestGen + ", Points: " + bestRate);
+            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRate);
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
