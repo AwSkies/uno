@@ -1,4 +1,4 @@
-package uno;
+package unotraining;
 
 import java.util.ArrayList;
 import java.util.List;

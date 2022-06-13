@@ -359,7 +359,7 @@ public class as_UnoPlayer implements UnoPlayer {
             {
                 msg += "," + values[i];
             }
-            msg += "\n" points + "," + rate + "," + points * rate;
+            msg += "\n" + points + "," + rate + "," + points * rate;
 
             writer.write(msg);
             writer.close();

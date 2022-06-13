@@ -1,6 +1,5 @@
 package unotraining;
 
-import java.util.Random;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -163,7 +162,7 @@ public class TrainValues {
             System.out.println("Rate: " + currentGenRatingRate);
             System.out.println("Points: " + currentGenRatingPoints);
             System.out.println("Rating: " + currentGenBestRating);
-            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRatingRate);
+            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRatingRate + ", Points: " + bestRatingPoints);
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
