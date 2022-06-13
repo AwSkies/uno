@@ -47,13 +47,13 @@ public class TrainValues {
      */
     public static void main(String args[]) {
         if (args.length == 1 && args[0].equals("-h")) {
-            System.out.println("Usage: TrainValues [startingGeneration] [points | ] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
+            System.out.println("Usage: TrainValues [startingGeneration] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
             System.exit(1);
         }
         
         // Default values
         int startingGen = 0;
-        int maxGenerations = 100;
+        int maxGenerations = 1000;
         int numPlayers = 4;
         int gamesPerGen = 10000;
         int playersPerGen = 50;
