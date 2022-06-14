@@ -13,7 +13,7 @@ import java.io.FileReader;
 public class TrainValues {
 
     /** 
-     * Controls how many messages fly by the screen while narrating an Uno
+     * Controls how many messages fly by the screen while narFitness an Uno
      * match in text.
      */
     static boolean PRINT_VERBOSE = false;
@@ -76,9 +76,9 @@ public class TrainValues {
 
         double[] bestValues = new double[0];
         double[] baselineValues = new double[0];
-        double bestRatingRate = 0;
-        int bestRatingPoints = 0;
-        double bestRating = 0;
+        double bestFitnessRate = 0;
+        int bestFitnessPoints = 0;
+        double bestFitness = 0;
         int bestGen = 0;
         // Read the values from the starting generation with error handling
         try
@@ -114,9 +114,9 @@ public class TrainValues {
 
             // Store mutated players
             as_UnoPlayer[] mutations = new as_UnoPlayer[playersPerGen];
-            double currentGenRatingRate = 0;
-            int currentGenRatingPoints = 0;
-            double currentGenBestRating = 0;
+            double currentGenFitnessRate = 0;
+            int currentGenFitnessPoints = 0;
+            double currentGenBestFitness = 0;
             int bestPlayer = 0;
             for (int p = 0; p < playersPerGen; p++)
             {
@@ -138,31 +138,32 @@ public class TrainValues {
                 }
                 System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
 
-                if (s.getWinRate(0) * s.getScore(0) > currentGenRatingRate) {
-                    currentGenRatingPoints = s.getScore(0);
-                    currentGenRatingRate = s.getWinRate(0);
-                    currentGenBestRating = currentGenRatingPoints * currentGenRatingRate;
+                double fitness = fitness(s.getWinRate(0) * s.getScore(0);
+                if (fitness > currentGenFitness) {
+                    currentGenFitnessPoints = s.getScore(0);
+                    currentGenFitnessRate = s.getWinRate(0);
+                    currentGenBestFitness = fitness;
                     bestPlayer = p;
                 }
             }
 
             // Save best values if this performed better than the previous best generation
-            if (currentGenRatingRate > bestRating)
+            if (currentGenFitnessRate > bestFitness)
             {
-                bestRatingPoints = currentGenRatingPoints;
-                bestRatingRate = currentGenRatingRate;
-                bestRating = currentGenBestRating;
+                bestFitnessPoints = currentGenFitnessPoints;
+                bestFitnessRate = currentGenFitnessRate;
+                bestFitness = currentGenBestFitness;
                 bestGen = gen;
             }
             bestValues = mutations[bestPlayer].getValues();
             // Dump values for current generation
-            mutations[bestPlayer].dumpValues(currentGenRatingPoints, currentGenRatingRate);
+            mutations[bestPlayer].dumpValues(currentGenFitnessPoints, currentGenFitnessRate);
 
             System.out.println("Finished generation " + gen + ".\nBest performer: " + mutations[bestPlayer]);
-            System.out.println("Rate: " + currentGenRatingRate);
-            System.out.println("Points: " + currentGenRatingPoints);
-            System.out.println("Rating: " + currentGenBestRating);
-            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestRatingRate + ", Points: " + bestRatingPoints);
+            System.out.println("Rate: " + currentGenFitnessRate);
+            System.out.println("Points: " + currentGenFitnessPoints);
+            System.out.println("Fitness: " + currentGenBestFitness);
+            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestFitnessRate + ", Points: " + bestFitnessPoints);
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
     }
@@ -189,6 +190,14 @@ public class TrainValues {
      */
     private static double[] readValues(int generation) throws Exception {
         return readValues("gen" + generation);
+    }
+
+    /**
+     * Returns the fitness (points times win rate) of a player
+     */
+    private static double fitness(double winRate, int points)
+    {
+        return winRate * points;
     }
 
     /**
