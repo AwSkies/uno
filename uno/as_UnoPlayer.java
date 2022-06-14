@@ -93,13 +93,7 @@ public class as_UnoPlayer implements UnoPlayer {
             Card card = hand.get(i);
             // If statement determining if the current card is valid
             // IF card is the same color as called
-            if ((card.getColor() == upColor) ||
-                // or card is not a number and the same rank as upCard
-                (card.getRank() != Rank.NUMBER && card.getRank() == upCard.getRank()) ||
-                // or card is a number and the same number as upCard
-                (card.getRank() == Rank.NUMBER && card.getNumber() == upCard.getNumber()) ||
-                // or card is a wild
-                (card.getColor() == Color.NONE))
+            if (card.canPlayOn(upCard, calledColor))
             {
                 // Count points towards this card being good
                 double points = 0;
