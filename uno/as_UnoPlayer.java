@@ -1,3 +1,7 @@
+/*
+ * BY AKASH SHAH
+ */
+
 package uno;
 import java.util.List;
 
@@ -10,10 +14,10 @@ public class as_UnoPlayer implements UnoPlayer {
     private double baseNumberPoints = 1;
     // The coefficient of the number's value over 9
     private double numberValueCoefficient = 1;
-    // The amount of points given to a number card that can switch the color to the color we have the most of
-    private double switchColorToMostHeldPoints = 2;
-    // The amount of points given to a number card that can switch the color to a color we have more of than the current color
-    private double switchColorToMoreHeldPoints = 1;
+    // The amount of extra points given to a card if it is the color we have the most of
+    private double mostHeldColorPoints = 1;
+    // The amount to multiply the ratio of card of a certain color to cards in the hand by
+    private double colorRatioCoefficient = 4;
     // The ratio of opponents cards to our cards that indicates they are a threat
     private double significantLeadRatio = 0.5;
     // The amount of point given to a card that is not the color of the highest player's last wild
@@ -106,14 +110,14 @@ public class as_UnoPlayer implements UnoPlayer {
                     // Given points to start and then given more points for higher numbers to prioritize getting rid of high cards
                     points += baseNumberPoints + (numberValueCoefficient * (card.getNumber() / 9.0));
 
-                // If color is not the same color as the current card and not a wild and the hand has more cards of this color than the current color
-                if (card.getColor() != upColor && card.getColor() != Color.NONE && colors[card.getColor().ordinal()] > colors[upColor.ordinal()])
-                    // If this card would be changing the color to the color we have most of, give points
-                    if (card.getColor() == maxColor)
-                        points += switchColorToMostHeldPoints;
-                    // else, the color is just one we have more of, give points
-                    else
-                        points += switchColorToMoreHeldPoints;
+                // If this is not a wild card
+                if (card.getColor() != Color.NONE)
+                    // Add points proportionally to the amount of cards in the hand that this color takes up
+                    points += colorRatioCoefficient * (color[card.getColor.ordinal()] / (double) hand.size());
+                
+                // Add an extra bonus if this card is one of the most held color
+                if (card.getColor() == maxColor)
+                    points += mostHeldColorPoints;
 
                 // Agressive conditions ----------------------------------------------------------------------------------------------------------------
                 // These points are awarded when another player is close to winning and tries to hurt them
