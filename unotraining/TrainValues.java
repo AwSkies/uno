@@ -138,8 +138,8 @@ public class TrainValues {
                 }
                 System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
 
-                double fitness = fitness(s.getWinRate(0) * s.getScore(0);
-                if (fitness > currentGenFitness) {
+                double fitness = fitness(s.getWinRate(0), s.getScore(0));
+                if (fitness > currentGenBestFitness) {
                     currentGenFitnessPoints = s.getScore(0);
                     currentGenFitnessRate = s.getWinRate(0);
                     currentGenBestFitness = fitness;
