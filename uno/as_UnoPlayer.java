@@ -113,7 +113,7 @@ public class as_UnoPlayer implements UnoPlayer {
                 // If this is not a wild card
                 if (card.getColor() != Color.NONE)
                     // Add points proportionally to the amount of cards in the hand that this color takes up
-                    points += colorRatioCoefficient * (color[card.getColor.ordinal()] / (double) hand.size());
+                    points += colorRatioCoefficient * (colors[card.getColor().ordinal()] / (double) hand.size());
                 
                 // Add an extra bonus if this card is one of the most held color
                 if (card.getColor() == maxColor)
