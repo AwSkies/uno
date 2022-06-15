@@ -34,7 +34,7 @@ public class Hand {
             e.printStackTrace();
             System.exit(1);
         }
-        this.playerName = player.getClass().getSimpleName();
+        this.playerName = ((as_UnoPlayer) player).getName();
         cards = new ArrayList<Card>();
     }
 

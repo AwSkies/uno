@@ -105,7 +105,7 @@ public class TrainValues {
             players[i] = new as_UnoPlayer("Baseline" + i, -1, baselineValues);
         }
         // The parents selected from the previous generation to breed for the next generation
-        as_UnoPlayer[] parents = new as_UnoPlayer[numPlayers / 10];
+        as_UnoPlayer[] parents = new as_UnoPlayer[playersPerGen / 10];
         // Populate parents array with the bestValues from already run simulations or baselines
         for (int i = 0; i < parents.length; i++) {
             parents[i] = new as_UnoPlayer("Parent " + i, startingGen, bestValues);
@@ -119,8 +119,8 @@ public class TrainValues {
             as_UnoPlayer[] mutatedPlayers = new as_UnoPlayer[playersPerGen];
             // Populated current gen with offspring of the previous generation
             // All five parents will have two children with every parent (including themselves)
-            for (int p1 = 0, i = 0; p1 < parents.length; p1++, i++) {
-                for (int p2 = 0; p2 < parents.length; p2++, i++) {
+            for (int p1 = 0, i = 0; p1 < parents.length; p1++) {
+                for (int p2 = 0; p2 < parents.length; p2++) {
                     for (int times = 0; times < 2; times++, i++) {
                         mutatedPlayers[i] = new as_UnoPlayer("Player" + i, gen, breed(parents[p1], parents[p2]));
                     }
@@ -146,10 +146,10 @@ public class TrainValues {
                         return;
                     }
                 }
-                System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
-
-                mutatedPlayers[p].setPoints(s.getScore(p));
-                mutatedPlayers[p].setWinRate(s.getWinRate(p));
+                mutatedPlayers[p].setPoints(s.getScore(0));
+                mutatedPlayers[p].setWinRate(s.getWinRate(0));
+                
+                System.out.println("Finished player " + p + ". Fitness: " + mutatedPlayers[p].getFitness());
             }
 
             // Sort mutatedPlayers in ascending order by fitness
@@ -158,7 +158,7 @@ public class TrainValues {
                 public int compare(as_UnoPlayer player1, as_UnoPlayer player2) {
                     double f1 = player1.getFitness();
                     double f2 = player2.getFitness();
-                    return (f1 > f2) ? -1 : ((f1 == f2) ? 0 : 1);
+                    return (f1 < f2) ? -1 : ((f1 == f2) ? 0 : 1);
                 }
             });
 
