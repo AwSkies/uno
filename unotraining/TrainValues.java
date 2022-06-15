@@ -249,7 +249,7 @@ public class TrainValues {
             String generationMsg = "baseNumberPoints,numberValueCoefficient,mostHeldColorPoints,"
                 + "colorRatioCoefficient,significantLeadRatio,playColorDislikedByHighestPlayerPoints,"
                 + "reversePoints,skipPoints,drawTwoPoints,wildDrawFourPoints,heldColorCoefficient,"
-                + "calledColorPoints,fitness,points,rate";
+                + "calledColorPoints,fitness,points,rate\n";
             
             // Reverse player list to put best player at the top
             List<as_UnoPlayer> playerList = Arrays.asList(players);
