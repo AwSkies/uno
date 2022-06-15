@@ -271,7 +271,7 @@ public class TrainValues {
             File best = new File("values/best.csv");
             FileWriter bestWriter = new FileWriter(best, true);
 
-            as_UnoPlayer bestPlayer = players[players.length - 1];
+            as_UnoPlayer bestPlayer = players[0];
             String bestMsg = bestPlayer.getGeneration() + ",";
             for (double value : bestPlayer.getValues())
             {
