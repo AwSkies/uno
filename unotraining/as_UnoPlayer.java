@@ -1,6 +1,5 @@
 package unotraining;
-import java.io.File;
-import java.io.FileWriter;
+
 import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
@@ -363,38 +362,6 @@ public class as_UnoPlayer implements UnoPlayer {
         wildDrawFourPoints = values[9];
         heldColorCoefficient = values[10];
         calledColorPoints = values[11];
-    }
-
-    /**
-     * Dumps all of the values into a file with the correct generation and score
-     */
-    public void dumpValues()
-    {
-        // Create file
-        File file = new File("values/gen" + generation + ".csv");
-        try
-        {
-            // Create file
-            file.createNewFile();
-            // Create writer
-            FileWriter writer = new FileWriter(file);
-
-            double[] values = getValues();
-            String msg = "" + values[0];
-            for (int i = 1; i < values.length; i++)
-            {
-                msg += "," + values[i];
-            }
-            msg += "\n" + points + "," + winRate + "," + getFitness();
-
-            writer.write(msg);
-            writer.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-        }
     }
 
     public String toString()

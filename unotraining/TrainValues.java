@@ -1,10 +1,14 @@
 package unotraining;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 
 /**
  * <p>An entire terminal-based simulation of a multi-game Uno match.
@@ -170,7 +174,7 @@ public class TrainValues {
             }
             bestValues = currentGenBestPlayer.getValues();
             // Dump values for current generation
-            currentGenBestPlayer.dumpValues();
+            dumpGeneration(mutatedPlayers);
 
             // Log generation results
             System.out.println("Finished generation " + gen + ".\nBest performer: " + currentGenBestPlayer);
@@ -224,6 +228,65 @@ public class TrainValues {
      */
     private static double[] readValues(int generation) throws Exception {
         return readValues("gen" + generation);
+    }
+
+    /**
+     * Dumps an entire generation of players into a csv file.
+     * @param players the players to dump, should be sorted in ascending order
+     */
+    private static void dumpGeneration(as_UnoPlayer[] players)
+    {
+        try
+        {
+            // Dump one generation into its own file ---------------------------------------------------------------------------------------------------
+            // Create file object
+            File generation = new File("values/gen" + players[0].getGeneration() + ".csv");
+            // Create file
+            generation.createNewFile();
+            // Create writer
+            FileWriter generationWriter = new FileWriter(generation);
+
+            String generationMsg = "baseNumberPoints,numberValueCoefficient,mostHeldColorPoints,"
+                + "colorRatioCoefficient,significantLeadRatio,playColorDislikedByHighestPlayerPoints,"
+                + "reversePoints,skipPoints,drawTwoPoints,wildDrawFourPoints,heldColorCoefficient,"
+                + "calledColorPoints,fitness,points,rate";
+            
+            // Reverse player list to put best player at the top
+            List<as_UnoPlayer> playerList = Arrays.asList(players);
+            Collections.reverse(playerList);
+
+            for (as_UnoPlayer player : playerList) {
+                for (double value : player.getValues())
+                {
+                    generationMsg += value + ",";
+                }
+                generationMsg += player.getFitness() + "," + player.getPoints() + "," + player.getWinRate() + "\n";
+            }
+
+            generationWriter.write(generationMsg);
+            generationWriter.close();
+
+            // Add this generation's best to the end of a file -----------------------------------------------------------------------------------------
+            // Create file object
+            File best = new File("values/best.csv");
+            FileWriter bestWriter = new FileWriter(best, true);
+
+            as_UnoPlayer bestPlayer = players[players.length - 1];
+            String bestMsg = bestPlayer.getGeneration() + ",";
+            for (double value : bestPlayer.getValues())
+            {
+                bestMsg += value + ",";
+            }
+            bestMsg += bestPlayer.getFitness() + "," + bestPlayer.getPoints() + "," + bestPlayer.getWinRate() + "\n";
+
+            bestWriter.write(bestMsg);
+            bestWriter.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     /**
