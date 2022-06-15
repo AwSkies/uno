@@ -1,9 +1,7 @@
 package unotraining;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.File;
@@ -156,13 +154,13 @@ public class TrainValues {
                 System.out.println("Finished player " + p + ". Fitness: " + mutatedPlayers[p].getFitness());
             }
 
-            // Sort mutatedPlayers in ascending order by fitness
+            // Sort mutatedPlayers in descending order by fitness
             Arrays.sort(mutatedPlayers, new Comparator<as_UnoPlayer>() {
                 @Override
                 public int compare(as_UnoPlayer player1, as_UnoPlayer player2) {
                     double f1 = player1.getFitness();
                     double f2 = player2.getFitness();
-                    return (f1 < f2) ? -1 : ((f1 == f2) ? 0 : 1);
+                    return (f1 > f2) ? -1 : ((f1 == f2) ? 0 : 1);
                 }
             });
 
@@ -186,22 +184,26 @@ public class TrainValues {
             System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             
             // Select parents for next generation
-            System.out.println("Selecting parents for next generation...");
+            System.out.print("Chosen parents from ranks: ");
 
             // Reset parents array
             parents = new as_UnoPlayer[playersPerGen / 10];
-
-            // Get weighted random selection
-            int totalRanks = (int) ((playersPerGen / 2.0) * (playersPerGen - 1));
-            // Repeat once for each parent to be selected
-            for (int p = 0; p < parents.length; p++) {
-                int i = 0;
-                for (double r = Math.random() * totalRanks * 1.15; i < mutatedPlayers.length - 1 && r > 0; i++) {
-                    r -= i;
+            boolean filled = true;
+            do
+            {
+                for (int p = 0, i = 0; p < mutatedPlayers.length && i < parents.length; p++) {
+                    if (Math.random() + (1.0 / (p + 1)) > 1 && parents[i] == null){
+                        parents[i] = mutatedPlayers[p];
+                        i++;
+                        System.out.print(p + " ");
+                    }
                 }
-                parents[p] = mutatedPlayers[i];
-                System.out.println("Chosen parent from rank " + (playersPerGen - i));
-            }
+                for (int i = 0; i < parents.length && filled; i++)
+                {
+                    if (parents[i] == null)
+                        filled = false;
+                }
+            } while (!filled);
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestPlayer.getGeneration());
     }
@@ -250,12 +252,8 @@ public class TrainValues {
                 + "colorRatioCoefficient,significantLeadRatio,playColorDislikedByHighestPlayerPoints,"
                 + "reversePoints,skipPoints,drawTwoPoints,wildDrawFourPoints,heldColorCoefficient,"
                 + "calledColorPoints,fitness,points,rate\n";
-            
-            // Reverse player list to put best player at the top
-            List<as_UnoPlayer> playerList = Arrays.asList(players);
-            Collections.reverse(playerList);
 
-            for (as_UnoPlayer player : playerList) {
+            for (as_UnoPlayer player : players) {
                 for (double value : player.getValues())
                 {
                     generationMsg += value + ",";
