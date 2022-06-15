@@ -4,8 +4,40 @@ import java.io.FileWriter;
 import java.util.List;
 
 public class as_UnoPlayer implements UnoPlayer {
-    public String name;
-    int generation;
+    private String name;
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private int generation;
+    public int getGeneration() {
+        return generation;
+    }
+
+    private int points;
+    public int getPoints() {
+        return points;
+    }
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    private double winRate;
+    public double getWinRate() {
+        return winRate;
+    }
+    public void setWinRate(double winRate) {
+        this.winRate = winRate;
+    }
+
+    public double getFitness() {
+        return points * winRate;
+    }
+    
+
     public static final int NUM_VALUES = 12;
 
     // The game state stored for use during callColor
@@ -336,7 +368,7 @@ public class as_UnoPlayer implements UnoPlayer {
     /**
      * Dumps all of the values into a file with the correct generation and score
      */
-    public void dumpValues(int points, double rate)
+    public void dumpValues()
     {
         // Create file
         File file = new File("values/gen" + generation + ".csv");
@@ -353,7 +385,7 @@ public class as_UnoPlayer implements UnoPlayer {
             {
                 msg += "," + values[i];
             }
-            msg += "\n" + points + "," + rate + "," + points * rate;
+            msg += "\n" + points + "," + winRate + "," + getFitness();
 
             writer.write(msg);
             writer.close();
@@ -368,11 +400,12 @@ public class as_UnoPlayer implements UnoPlayer {
     public String toString()
     {
         double[] values = getValues();
-        String str = name + "\nAttributes: " + values[0];
+        String str = name + " Attributes: " + values[0];
         for (int i = 1; i < values.length; i++)
         {
             str += "," + values[i];
         }
+        str += "\nFitness: " + getFitness() + ", Points: " + points + ", Win Rate: " + winRate;
         return str;
     }
 }

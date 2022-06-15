@@ -1,5 +1,7 @@
 package unotraining;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -47,13 +49,13 @@ public class TrainValues {
      */
     public static void main(String args[]) {
         if (args.length == 1 && args[0].equals("-h")) {
-            System.out.println("Usage: TrainValues [startingGeneration] [maxGenerations] [numPlayers] [gamesPerGen] [playersPerGen]");
+            System.out.println("Usage: TrainValues [startingGeneration] [maxGenerations] [numPlayers] [gamesPerGen]");
             System.exit(1);
         }
         
         // Default values
         int startingGen = 0;
-        int maxGenerations = 1000;
+        int maxGenerations = 100000;
         int numPlayers = 4;
         int gamesPerGen = 10000;
         int playersPerGen = 50;
@@ -71,15 +73,8 @@ public class TrainValues {
         if (args.length > 3)
             gamesPerGen = Integer.parseInt(args[3]);
 
-        if (args.length > 4)
-            playersPerGen = Integer.parseInt(args[4]);
-
         double[] bestValues = new double[0];
         double[] baselineValues = new double[0];
-        double bestFitnessRate = 0;
-        int bestFitnessPoints = 0;
-        double bestFitness = 0;
-        int bestGen = 0;
         // Read the values from the starting generation with error handling
         try
         {
@@ -100,30 +95,45 @@ public class TrainValues {
             System.exit(1);
         }
 
-        // Initialize players array
+        // Initialize best player as having either the previous generation's best values or having baseline
+        as_UnoPlayer bestPlayer = new as_UnoPlayer("BestPlayer", startingGen, bestValues);
+        
+        // Initialize players array with baselines at all spots except for the first
         UnoPlayer[] players = new UnoPlayer[numPlayers];
         for (int i = 1; i < numPlayers; i++)
         {
-            players[i] = new random_UnoPlayer();
+            players[i] = new as_UnoPlayer("Baseline" + i, -1, baselineValues);
         }
-
+        // The parents selected from the previous generation to breed for the next generation
+        as_UnoPlayer[] parents = new as_UnoPlayer[numPlayers / 10];
+        // Populate parents array with the bestValues from already run simulations or baselines
+        for (int i = 0; i < parents.length; i++) {
+            parents[i] = new as_UnoPlayer("Parent " + i, startingGen, bestValues);
+        }
+        
         // For each generation
         for (int gen = startingGen + 1; gen < maxGenerations; gen++)
         {
-            System.out.println("Beginning generation " + gen + "...");
+            System.out.println("Breeding offspring from chosen parents...");
+            // Initialize mutatedPlayers array
+            as_UnoPlayer[] mutatedPlayers = new as_UnoPlayer[playersPerGen];
+            // Populated current gen with offspring of the previous generation
+            // All five parents will have two children with every parent (including themselves)
+            for (int p1 = 0, i = 0; p1 < parents.length; p1++, i++) {
+                for (int p2 = 0; p2 < parents.length; p2++, i++) {
+                    for (int times = 0; times < 2; times++, i++) {
+                        mutatedPlayers[i] = new as_UnoPlayer("Player" + i, gen, breed(parents[p1], parents[p2]));
+                    }
+                }
+            }
 
-            // Store mutated players
-            as_UnoPlayer[] mutations = new as_UnoPlayer[playersPerGen];
-            double currentGenFitnessRate = 0;
-            int currentGenFitnessPoints = 0;
-            double currentGenBestFitness = 0;
-            int bestPlayer = 0;
+            System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");;
+            System.out.println("Beginning generation " + gen + "...");
+            
             for (int p = 0; p < playersPerGen; p++)
             {
-                // Make new player based on mutations from previous generation
-                as_UnoPlayer currentPlayer = new as_UnoPlayer("Player" + p, gen, mutateValues(bestValues));
-                players[0] = currentPlayer;
-                mutations[p] = currentPlayer;
+                // Set player in first index of current player array
+                players[0] = mutatedPlayers[p];
 
                 // Create and run games
                 Scoreboard s = new Scoreboard(players);
@@ -138,34 +148,58 @@ public class TrainValues {
                 }
                 System.out.println("Finished player " + p + ". Win rate: " + s.getWinRate(0));
 
-                double fitness = fitness(s.getWinRate(0), s.getScore(0));
-                if (fitness > currentGenBestFitness) {
-                    currentGenFitnessPoints = s.getScore(0);
-                    currentGenFitnessRate = s.getWinRate(0);
-                    currentGenBestFitness = fitness;
-                    bestPlayer = p;
+                mutatedPlayers[p].setPoints(s.getScore(p));
+                mutatedPlayers[p].setWinRate(s.getWinRate(p));
+            }
+
+            // Sort mutatedPlayers in ascending order by fitness
+            Arrays.sort(mutatedPlayers, new Comparator<as_UnoPlayer>() {
+                @Override
+                public int compare(as_UnoPlayer player1, as_UnoPlayer player2) {
+                    double f1 = player1.getFitness();
+                    double f2 = player2.getFitness();
+                    return (f1 > f2) ? -1 : ((f1 == f2) ? 0 : 1);
                 }
-            }
+            });
 
-            // Save best values if this performed better than the previous best generation
-            if (currentGenFitnessRate > bestFitness)
+            as_UnoPlayer currentGenBestPlayer = mutatedPlayers[mutatedPlayers.length - 1];
+            // Save best values if this generation's best player surpassed the previous
+            if (currentGenBestPlayer.getFitness() > bestPlayer.getFitness())
             {
-                bestFitnessPoints = currentGenFitnessPoints;
-                bestFitnessRate = currentGenFitnessRate;
-                bestFitness = currentGenBestFitness;
-                bestGen = gen;
+                bestPlayer = currentGenBestPlayer;
             }
-            bestValues = mutations[bestPlayer].getValues();
+            bestValues = currentGenBestPlayer.getValues();
             // Dump values for current generation
-            mutations[bestPlayer].dumpValues(currentGenFitnessPoints, currentGenFitnessRate);
+            currentGenBestPlayer.dumpValues();
 
-            System.out.println("Finished generation " + gen + ".\nBest performer: " + mutations[bestPlayer]);
-            System.out.println("Rate: " + currentGenFitnessRate);
-            System.out.println("Points: " + currentGenFitnessPoints);
-            System.out.println("Fitness: " + currentGenBestFitness);
-            System.out.println("Current best generation: " + bestGen + ", Rate: " + bestFitnessRate + ", Points: " + bestFitnessPoints);
+            // Log generation results
+            System.out.println("Finished generation " + gen + ".\nBest performer: " + currentGenBestPlayer);
+            System.out.println("Current best generation: " + bestPlayer.getGeneration() +
+                ", Fitness: " + bestPlayer.getFitness() +
+                ", Rate: " + bestPlayer.getWinRate() +
+                ", Points: " + bestPlayer.getPoints()
+            );
+            System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            
+            // Select parents for next generation
+            System.out.println("Selecting parents for next generation...");
+
+            // Reset parents array
+            parents = new as_UnoPlayer[playersPerGen / 10];
+
+            // Get weighted random selection
+            int totalRanks = (int) ((playersPerGen / 2.0) * (playersPerGen - 1));
+            // Repeat once for each parent to be selected
+            for (int p = 0; p < parents.length; p++) {
+                int i = 0;
+                for (double r = Math.random() * totalRanks * 1.15; i < mutatedPlayers.length - 1 && r > 0; i++) {
+                    r -= i;
+                }
+                parents[p] = mutatedPlayers[i];
+                System.out.println("Chosen parent from rank " + (playersPerGen - i));
+            }
         }
-        System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestGen);
+        System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestPlayer.getGeneration());
     }
 
     private static double[] readValues(String name) throws Exception
@@ -193,29 +227,31 @@ public class TrainValues {
     }
 
     /**
-     * Returns the fitness (points times win rate) of a player
-     */
-    private static double fitness(double winRate, int points)
-    {
-        return winRate * points;
-    }
-
-    /**
      * Mutates the values passed randomly. Sometimes will swap a value with the
      * @param valuesToMutate The values to mutate
      */
-    private static double[] mutateValues(double[] valuesToMutate)
+    private static double[] breed(as_UnoPlayer parent1, as_UnoPlayer parent2)
     {
-        double[] values = new double[valuesToMutate.length];
-        for (int i = 0; i < valuesToMutate.length; i++)
+        // Dimension one is which parent, dimension two is which value
+        double[][] parentValues = new double[][] {parent1.getValues(), parent2.getValues()};
+        double[] values = new double[as_UnoPlayer.NUM_VALUES];
+        for (int i = 0; i < values.length; i++)
         {
-            int sign = 1;
-            if ((int) (Math.random() * 2) == 1)
-                sign = -1;
-            // Mutates the values
-            // Adds or subtracts two Math.random() calls to the value
-            // The two Math.random() calls are so small changes occur most often but large changes can exist
-            values[i] = valuesToMutate[i] + (sign * Math.random() * Math.random());
+            // Randomize whether value is from first or second parent
+            values[i] = parentValues[(int) (Math.random() * 2)][i];
+
+            // Randomize elitism: 1/2 chance to remain, 1/2 chance to mutate
+            if ((int) (Math.random() * 2) == 0) 
+            {
+                // Randomize addition or subtraction from current
+                int sign = 1;
+                if ((int) (Math.random() * 2) == 1)
+                    sign = -1;
+                // Mutates the values
+                // Adds or subtracts two Math.random() calls to the value
+                // The two Math.random() calls are so small changes occur most often but large changes can exist
+                values[i] += sign * Math.random() * Math.random();
+            }
         }
         return values;
     }
