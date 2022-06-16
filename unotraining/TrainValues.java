@@ -106,11 +106,22 @@ public class TrainValues {
         {
             players[i] = new as_UnoPlayer("Baseline" + i, -1, baselineValues);
         }
+
         // The parents selected from the previous generation to breed for the next generation
         as_UnoPlayer[] parents = new as_UnoPlayer[playersPerGen / 10];
+
         // Populate parents array with the bestValues from already run simulations or baselines
         for (int i = 0; i < parents.length; i++) {
-            parents[i] = new as_UnoPlayer("Parent " + i, startingGen, bestValues);
+            double[] startingValues = new double[as_UnoPlayer.NUM_VALUES];
+            // If we're starting a sim from scratch, generate a bunch of random players to start
+            if (startingGen == 0) {
+                for (int j = 0; j < startingValues.length; j++) {
+                    startingValues[j] = Math.random() * 15;
+                }
+            } else {
+                startingValues = bestValues;
+            }
+            parents[i] = new as_UnoPlayer("Parent " + i, startingGen, startingValues);
         }
         
         // For each generation
