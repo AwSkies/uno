@@ -309,18 +309,13 @@ public class TrainValues {
             // Randomize whether value is from first or second parent
             values[i] = parentValues[(int) (Math.random() * 2)][i];
 
-            // Randomize elitism: 1/2 chance to remain, 1/2 chance to mutate
-            if ((int) (Math.random() * 2) == 0) 
-            {
-                // Randomize addition or subtraction from current
-                int sign = 1;
-                if ((int) (Math.random() * 2) == 1)
-                    sign = -1;
-                // Mutates the values
-                // Adds or subtracts two Math.random() calls to the value
-                // The two Math.random() calls are so small changes occur most often but large changes can exist
-                values[i] += sign * Math.random() * Math.random();
-            }
+            // Randomize addition or subtraction from value
+            int sign = 1;
+            if ((int) (Math.random() * 2) == 1)
+                sign = -1;
+            // Mutates the values
+            // Add values based on an exponential function (about 0.4 of the values are basically zero, about half are between 0 and 1, and about 0.1 are above one)
+            values[i] += sign * Math.pow(Math.E, 9 * (Math.random() - 0.9));
         }
         return values;
     }
