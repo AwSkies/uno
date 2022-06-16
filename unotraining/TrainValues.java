@@ -164,7 +164,7 @@ public class TrainValues {
                 }
             });
 
-            as_UnoPlayer currentGenBestPlayer = mutatedPlayers[mutatedPlayers.length - 1];
+            as_UnoPlayer currentGenBestPlayer = mutatedPlayers[0];
             // Save best values if this generation's best player surpassed the previous
             if (currentGenBestPlayer.getFitness() > bestPlayer.getFitness())
             {
@@ -192,12 +192,13 @@ public class TrainValues {
             do
             {
                 for (int p = 0, i = 0; p < mutatedPlayers.length && i < parents.length; p++) {
-                    if (Math.random() + (1.0 / (p + 1)) > 1 && parents[i] == null){
+                    if (Math.random() + (1.0 / (p + 1)) > 1) {
                         parents[i] = mutatedPlayers[p];
                         i++;
                         System.out.print(p + " ");
                     }
                 }
+                filled = true;
                 for (int i = 0; i < parents.length && filled; i++)
                 {
                     if (parents[i] == null)
