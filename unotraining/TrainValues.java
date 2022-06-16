@@ -184,18 +184,18 @@ public class TrainValues {
             System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             
             // Select parents for next generation
-            System.out.print("Chosen parents from ranks: ");
-
+            
             // Reset parents array
             parents = new as_UnoPlayer[playersPerGen / 10];
+            int[] ranks = new int[playersPerGen / 10];
             boolean filled = true;
             do
             {
                 for (int p = 0, i = 0; p < mutatedPlayers.length && i < parents.length; p++) {
                     if (Math.random() + (1.0 / (p + 1)) > 1) {
                         parents[i] = mutatedPlayers[p];
+                        ranks[i] = p;
                         i++;
-                        System.out.print(p + " ");
                     }
                 }
                 filled = true;
@@ -205,6 +205,13 @@ public class TrainValues {
                         filled = false;
                 }
             } while (!filled);
+            
+            System.out.print("Chosen parents from ranks: ");
+            for (int i : ranks)
+            {
+                System.out.print(i + " ");
+            }
+            System.out.println();
         }
         System.out.println(maxGenerations + " generations surpassed. Best generation: " + bestPlayer.getGeneration());
     }
