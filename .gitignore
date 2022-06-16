@@ -27,3 +27,4 @@ replay_pid*
 *.code-workspace
 doc/
 *.DS_STORE
+values/saved/
