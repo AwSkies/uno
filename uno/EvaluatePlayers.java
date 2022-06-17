@@ -4,6 +4,7 @@ package uno;
  
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,7 +15,7 @@ import java.io.FileReader;
  * provided to the screen about game flow and final scores.</p>
  * @since 1.0
  */
-public class UnoSimulation {
+public class EvaluatePlayers {
 
     /** 
      * Controls how many messages fly by the screen while narrating an Uno
@@ -60,27 +61,43 @@ public class UnoSimulation {
     public static void main(String args[]) {
         int numGames = 0;
         if (args.length != 1  &&  args.length != 2) {
-            System.out.println("Usage: UnoSimulation numberOfGames [verbose|quiet].");
+            System.out.println("Usage: EvaluatePlayers numberOfGames.");
             System.exit(1);
         }
         numGames = Integer.valueOf(args[0]);
-        if (args.length == 2  &&  args[1].equals("quiet")) {
-            PRINT_VERBOSE = false;
-        }
-        if (args.length == 2  &&  args[1].equals("verbose")) {
-            PRINT_VERBOSE = true;
-        }
+
         try {
+            ArrayList<Integer> map = new ArrayList<Integer>();
             loadPlayerData();
-            Scoreboard s = new Scoreboard(playerNames.toArray(new String[0]));
-            for (int i=0; i<numGames; i++) {
-                Game g = new Game(s,playerClasses);
-                if(!g.play()) {
-                    System.out.println("Illegal play. Aborting.");
-                    return;
-                }
+            for (int i = 0; i < playerNames.size(); i++) {
+                map.add(i);
             }
-            System.out.println(s);
+            int[] gamesWon = new int[playerNames.size()];
+            for (int game = 0; game < 50; game++) {
+                Collections.shuffle(map);
+                ArrayList<String> newPlayerNames = new ArrayList<String>();
+                ArrayList<String> newPlayerClasses = new ArrayList<String>();
+                for (int i : map) {
+                    newPlayerNames.add(playerNames.get(i));
+                    newPlayerClasses.add(playerClasses.get(i));
+                }
+                Scoreboard s = new Scoreboard(newPlayerNames.toArray(new String[0]));
+                for (int i=0; i<numGames; i++) {
+                    Game g = new Game(s,newPlayerClasses);
+                    if(!g.play()) {
+                        System.out.println("Illegal play. Aborting.");
+                        return;
+                    }
+                }
+                String name = newPlayerNames.get(s.getWinner());
+                gamesWon[playerNames.indexOf(name)]++;
+                int won = gamesWon[playerNames.indexOf(name)];
+                System.out.println(name + won);
+            }
+            for (int i = 0; i < playerNames.size(); i++)
+            {
+                System.out.println(playerNames.get(i) + ": " + gamesWon[i]);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -98,5 +115,4 @@ public class UnoSimulation {
             playerLine = br.readLine();
         }
     }
-
 }
